@@ -12,7 +12,6 @@ func ImportAllPacakges(wd string) {
 		if err != nil {
 			return err
 		}
-		fmt.Println("filepath ", path)
 		if filepath.Ext(path) == ".go" {
 			cmd := exec.Command("goimports", "-w", path)
 			if err := cmd.Run(); err != nil {
@@ -24,4 +23,5 @@ func ImportAllPacakges(wd string) {
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("Imported all local packages successfully!")
 }

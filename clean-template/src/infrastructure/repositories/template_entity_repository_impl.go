@@ -21,7 +21,7 @@ func (r *TemplateEntityRepositoryImpl) Create(templateEntity *aggregates.Templat
 func (r *TemplateEntityRepositoryImpl) FindById(id string) (*aggregates.TemplateEntity, error) {
 	var templateEntity entity.TemplateEntity
 	// Implement find by id logic here
-	return toDomain(&templateEntity), nil
+	return r.toDomain(&templateEntity), nil
 }
 
 func (r *TemplateEntityRepositoryImpl) Update(templateEntity *aggregates.TemplateEntity) (*aggregates.TemplateEntity, error) {
@@ -34,14 +34,14 @@ func (r *TemplateEntityRepositoryImpl) Delete(id string) error {
 }
 
 // Convert entity.TemplateEntity to domain.TemplateEntity
-func toDomain(templateEntity *entity.TemplateEntity) *aggregates.TemplateEntity {
+func (r *TemplateEntityRepositoryImpl) toDomain(templateEntity *entity.TemplateEntity) *aggregates.TemplateEntity {
 	return &aggregates.TemplateEntity{
 		ID: templateEntity.ID,
 	}
 }
 
 // Convert domain.TemplateEntity to entity.TemplateEntity for MongoDB storage
-func ToEntity(templateEntity *aggregates.TemplateEntity) *entity.TemplateEntity {
+func (r *TemplateEntityRepositoryImpl) ToEntity(templateEntity *aggregates.TemplateEntity) *entity.TemplateEntity {
 	return &entity.TemplateEntity{
 		ID: templateEntity.ID,
 	}
