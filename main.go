@@ -125,6 +125,13 @@ func copyDirAndModify(efs embed.FS, srcDir, destDir, packageName string, entityN
 
 // modifyFile modifies the destination file content to include additional code
 func modifyFile(filePath, entityName string) error {
+	if strings.Contains(filePath, "app_module.go") {
+		return ToUpdateAppModuleFile(filePath, entityName)
+	}
+	return nil
+}
+
+func ToUpdateAppModuleFile(filePath, entityName string) error {
 	// Read the existing file content
 	data, err := os.ReadFile(filePath)
 	if err != nil {
@@ -132,28 +139,56 @@ func modifyFile(filePath, entityName string) error {
 	}
 
 	content := string(data)
+	entityNameUpperFirst := ToUpperFirst(entityName)
 
-	// Check if the new repository line already exists
-	newRepoLine := fmt.Sprintf("    %sRepository aggregates.%sRepository", ToUpperFirst(entityName), ToUpperFirst(entityName))
-	if strings.Contains(content, newRepoLine) {
-		return nil // Line already exists, no modification needed
-	}
+	lineToAddInRepoType := fmt.Sprintf("%sRepository aggregates.%sRepository", entityNameUpperFirst, entityNameUpperFirst)
+	repoStartKeyword := "type Repository struct {"
+	endKeyword := "}"
+	content = AddNewLineToExistContent(lineToAddInRepoType, content, repoStartKeyword, endKeyword, "", "")
 
-	// Find where to insert the new repository line
-	repoStruct := "type Repository struct {"
-	if idx := strings.Index(content, repoStruct); idx != -1 {
-		insertPos := idx + len(repoStruct) + 1
-		content = content[:insertPos] + "\n" + newRepoLine + "\n" + content[insertPos:]
-	}
+	lineToAddInRepositories := fmt.Sprintf("%sRepository: repositories.New%sRepository(databases)", entityNameUpperFirst, entityNameUpperFirst)
+	lineToAddInRepositoriesStartKeyword := "var AllRepositories = Repository{"
+	content = AddNewLineToExistContent(lineToAddInRepositories, content, lineToAddInRepositoriesStartKeyword, endKeyword, "", ",\n")
 
-	// Write the modified content back to the file
-	err = os.WriteFile(filePath, []byte(content), 0644)
-	if err != nil {
-		return fmt.Errorf("error writing to file %s: %v", filePath, err)
-	}
+	lineToAddInServiceType := fmt.Sprintf("%sService services.%sService", entityNameUpperFirst, entityNameUpperFirst)
+	serviceStartKeyword := "type Service struct {"
+	content = AddNewLineToExistContent(lineToAddInServiceType, content, serviceStartKeyword, endKeyword, "", "")
+
+	lineToAddInServices := fmt.Sprintf("%sService: services.New%sService(AllRepositories.%sRepository)", entityNameUpperFirst, entityNameUpperFirst, entityNameUpperFirst)
+	lineToAddInServicesStartKeyword := "var AllServices = Service{"
+	content = AddNewLineToExistContent(lineToAddInServices, content, lineToAddInServicesStartKeyword, endKeyword, "", ",\n")
+
+	lineToAddInHandlerType := fmt.Sprintf("%sHandler handlers.%sHandler", entityNameUpperFirst, entityNameUpperFirst)
+	handlerStartKeyword := "type Handler struct {"
+	content = AddNewLineToExistContent(lineToAddInHandlerType, content, handlerStartKeyword, endKeyword, "", "")
+
+	lineToAddInHanlders := fmt.Sprintf("%sHandler: handlers.New%sHandler(AllServices.%sService)", entityNameUpperFirst, entityNameUpperFirst, entityNameUpperFirst)
+	lineToAddInHanldersStartKeyword := "var AllHandlers = Handler{"
+	content = AddNewLineToExistContent(lineToAddInHanlders, content, lineToAddInHanldersStartKeyword, endKeyword, "", ",\n")
 
 	fmt.Printf("Modified file: %s\n", filePath)
-	return nil
+	return WriteFileInPath(filePath, content)
+}
+
+func AddNewLineToExistContent(newline, content, startKeyword, endKeyword, addToStartOfLine, addToEndOfLine string) string {
+
+	if strings.Contains(content, newline) {
+		return content // Line already exists, no modification needed
+	}
+
+	// Find the type Repository struct block and locate the closing bracket
+	if idx := strings.Index(content, startKeyword); idx != -1 {
+		// Find the closing curly bracket for the struct
+		start := idx + len(startKeyword)
+		end := strings.Index(content[start:], endKeyword)
+		if end != -1 {
+			// Insert the new repository line before the closing curly bracket
+			insertPos := start + end
+			content = content[:insertPos] + addToStartOfLine + newline + addToEndOfLine + content[insertPos:]
+		}
+	}
+
+	return content
 }
 
 // ToUpperFirst converts the first letter of a string to uppercase
@@ -193,4 +228,15 @@ func getPackageName(dir string) (string, error) {
 	}
 
 	return "", fmt.Errorf("module name not found in go.mod")
+}
+
+func WriteFileInPath(filePath, content string) error {
+	// Write the modified content back to the file
+	var err = os.WriteFile(filePath, []byte(content), 0644)
+	if err != nil {
+		return fmt.Errorf("error writing to file %s: %v", filePath, err)
+	}
+
+	fmt.Printf("Modified file: %s\n", filePath)
+	return nil
 }

@@ -35,20 +35,22 @@ func GetAppModule() *AppModule {
 	once.Do(func() {
 		var databases = db.ConnectAll()
 
-		templateEntityRepository := repositories.NewTemplateEntityRepository(databases)
-		templateEntityService := services.NewTemplateEntityService(templateEntityRepository)
-		templateEntityHandler := handlers.NewTemplateEntityHandler(templateEntityService)
+		var AllRepositories = Repository{
+			TemplateEntityRepository: repositories.NewTemplateEntityRepository(databases),
+		}
+
+		var AllServices = Service{
+			TemplateEntityService: services.NewTemplateEntityService(AllRepositories.TemplateEntityRepository),
+		}
+
+		var AllHandlers = Handler{
+			TemplateEntityHandler: handlers.NewTemplateEntityHandler(AllServices.TemplateEntityService),
+		}
 
 		appModule = &AppModule{
-			Repository: Repository{
-				TemplateEntityRepository: templateEntityRepository,
-			},
-			Service: Service{
-				TemplateEntityService: templateEntityService,
-			},
-			Handler: Handler{
-				TemplateEntityHandler: templateEntityHandler,
-			},
+			Repository: AllRepositories,
+			Service:    AllServices,
+			Handler:    AllHandlers,
 		}
 	})
 	return appModule
