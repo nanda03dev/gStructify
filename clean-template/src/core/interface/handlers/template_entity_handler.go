@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/nanda03dev/go-ms-template/src/application/services"
 	"github.com/nanda03dev/go-ms-template/src/common"
-	"github.com/nanda03dev/go-ms-template/src/interface/dto"
+	"github.com/nanda03dev/go-ms-template/src/core/application/services"
+	"github.com/nanda03dev/go-ms-template/src/core/interface/dto"
 )
 
 type TemplateEntityHandler interface {

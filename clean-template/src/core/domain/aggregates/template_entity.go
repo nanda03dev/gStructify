@@ -1,8 +1,8 @@
 package aggregates
 
 import (
+	"github.com/nanda03dev/go-ms-template/src/core/interface/dto"
 	"github.com/nanda03dev/go-ms-template/src/helper"
-	"github.com/nanda03dev/go-ms-template/src/interface/dto"
 )
 
 type TemplateEntity struct {

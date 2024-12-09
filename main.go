@@ -11,6 +11,7 @@ import (
 
 //go:embed clean-template/*
 var cleanTemplate embed.FS
+var msName string
 
 func main() {
 	// Get current directory (where the executable is run)
@@ -23,7 +24,7 @@ func main() {
 	// Read the go.mod file to get the package name
 	packageName, err := getPackageName(wd)
 	if err != nil {
-		fmt.Printf("Error reading go.mod: %v", err)
+		fmt.Printf("go.mod file does not exist in the current directory %v", err)
 		return
 	}
 
@@ -39,6 +40,11 @@ func main() {
 	}
 
 	fmt.Println("Created layers for entity : ", entityName, " successfully!")
+
+	// Split the string by "/"
+	parts := strings.Split(packageName, "/")
+	// Get the last part
+	msName = parts[len(parts)-1]
 
 	// Generate the microservice using the package name
 	CreateNewMS(wd, packageName, ToLowerFirst(entityName))
@@ -57,61 +63,73 @@ func main() {
 // CreateNewMS creates the microservice by copying and modifying the template files
 func CreateNewMS(outputDir, packageName string, entityName string) {
 	// Copy and modify template files
+	fmt.Println("packageName ", packageName)
+
 	err := copyDirAndModify(cleanTemplate, "clean-template", outputDir, packageName, entityName)
 	if err != nil {
 		panic(err)
 	}
 }
 
-// copyDirAndModify copies template files and modifies them with the package name
+// copyDirAndModify recursively copies the contents of a source directory (srcDir) from the embedded file system (efs)
+// to a destination directory (destDir). During the copying process, it modifies file names and contents based on
+// the provided packageName and entityName.
 func copyDirAndModify(efs embed.FS, srcDir, destDir, packageName string, entityName string) error {
+
+	// Read the list of entries (files and directories) in the source directory
 	entries, err := efs.ReadDir(srcDir)
 	if err != nil {
-		return err
+		return err // Return the error if the directory can't be read
 	}
 
 	for _, entry := range entries {
+		// Construct the source and destination paths for the current entry
 		srcPath := filepath.Join(srcDir, entry.Name())
 		destPath := filepath.Join(destDir, entry.Name())
 
 		if entry.IsDir() {
+			// If the entry is a directory, create the corresponding directory in the destination
 			err = os.MkdirAll(destPath, 0755)
 			if err != nil {
+				fmt.Println("Failed to create the destination folder due to an error")
 				return err
 			}
+
+			// Recursively process the subdirectory
 			err = copyDirAndModify(efs, srcPath, destPath, packageName, entityName)
 			if err != nil {
 				return err
 			}
 		} else {
+			// If the entry is a file, read its content
 			data, err := efs.ReadFile(srcPath)
 			if err != nil {
+				fmt.Println("Failed to read the source file due to an error")
 				return err
 			}
 
-			// Check if destination file exists
+			// Check if the destination file already exists
 			if _, err := os.Stat(destPath); err == nil {
-				// File exists, modify it
+				// If the file exists, modify its content
 				err = modifyFile(destPath, entityName)
 				if err != nil {
 					return err
 				}
 			} else {
-
-				// Rename file if it contains "template_entity"
+				// Rename the file if it contains "template_entity" in its name
 				if strings.Contains(entry.Name(), "template_entity") {
-					if entityName == "" {
-						continue
-					}
+					// if entityName == "" {
+					// 	continue // Skip renaming if entityName is empty
+					// }
 					destPath = strings.ReplaceAll(destPath, "template_entity", entityName)
 				}
 
-				// Replace content inside the file
+				// Replace placeholders in the file content
 				content := string(data)
-				content = strings.ReplaceAll(content, "TemplateEntity", ToUpperFirst(entityName))
-				content = strings.ReplaceAll(content, "templateEntity", entityName)
+				content = replaceEntityName(content, entityName)
 				content = strings.ReplaceAll(content, "github.com/nanda03dev/go-ms-template", packageName)
 
+				// Write the modified content to the destination file
 				err = os.WriteFile(destPath, []byte(content), 0644)
 				if err != nil {
 					return err
@@ -120,7 +138,7 @@ func copyDirAndModify(efs embed.FS, srcDir, destDir, packageName string, entityN
 		}
 	}
 
-	return nil
+	return nil // Return nil if the operation completes successfully
 }
 
 // modifyFile modifies the destination file content to include additional code
@@ -128,7 +146,70 @@ func modifyFile(filePath, entityName string) error {
 	if strings.Contains(filePath, "app_module.go") {
 		return ToUpdateAppModuleFile(filePath, entityName)
 	}
+
+	if strings.Contains(filePath, "routes.go") {
+		return ToUpdateRouterFile(filePath, entityName)
+	}
+
+	if strings.Contains(filePath, "response-messages.go") {
+		return ToUpdateCommonResponseMessage(filePath, entityName)
+	}
+
 	return nil
+}
+
+func ToUpdateRouterFile(filePath, entityName string) error {
+
+	var newLine = `
+	// TemplateEntity CRUD API'S
+	templateEntityHandler := appModule.Handler.TemplateEntityHandler
+	templateEntityV1Routes := api.Group("/v1/templateEntity")
+	templateEntityV1Routes.Post("/", templateEntityHandler.CreateTemplateEntity)
+	templateEntityV1Routes.Get("/:id", templateEntityHandler.GetTemplateEntityByID)
+	templateEntityV1Routes.Put("/:id", templateEntityHandler.UpdateTemplateEntityById)
+	templateEntityV1Routes.Delete("/:id", templateEntityHandler.DeleteTemplateEntityById)
+	`
+
+	newLine = replaceEntityName(newLine, entityName)
+
+	// Read the existing file content
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return fmt.Errorf("error reading file %s: %v", filePath, err)
+	}
+
+	content := string(data)
+
+	handlerLine := "templateEntityHandler := appModule.Handler.TemplateEntityHandler"
+
+	if !strings.Contains(content, replaceEntityName(handlerLine, entityName)) {
+		startKeyword := "func InitializeRoutes(app *fiber.App) {"
+		endKeyword := "}"
+		content = AddNewLineToExistContent(newLine, content, startKeyword, endKeyword, "\n", "\n")
+	}
+
+	return WriteFileInPath(filePath, content)
+}
+
+func ToUpdateCommonResponseMessage(filePath, entityName string) error {
+
+	var newLine = `TemplateEntityNotFoundError = "templateEntity not found"`
+	newLine = replaceEntityName(newLine, entityName)
+
+	// Read the existing file content
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return fmt.Errorf("error reading file %s: %v", filePath, err)
+	}
+
+	content := string(data)
+
+	startKeyword := "const ("
+	endKeyword := ")"
+	content = AddNewLineToExistContent(newLine, content, startKeyword, endKeyword, fmt.Sprintf("\n //%s \n", ToUpperFirst(entityName)), "")
+
+	fmt.Printf("Modified file: %s\n", filePath)
+	return WriteFileInPath(filePath, content)
 }
 
 func ToUpdateAppModuleFile(filePath, entityName string) error {
@@ -166,77 +247,5 @@ func ToUpdateAppModuleFile(filePath, entityName string) error {
 	lineToAddInHanldersStartKeyword := "var AllHandlers = Handler{"
 	content = AddNewLineToExistContent(lineToAddInHanlders, content, lineToAddInHanldersStartKeyword, endKeyword, "", ",\n")
 
-	fmt.Printf("Modified file: %s\n", filePath)
 	return WriteFileInPath(filePath, content)
-}
-
-func AddNewLineToExistContent(newline, content, startKeyword, endKeyword, addToStartOfLine, addToEndOfLine string) string {
-
-	if strings.Contains(content, newline) {
-		return content // Line already exists, no modification needed
-	}
-
-	// Find the type Repository struct block and locate the closing bracket
-	if idx := strings.Index(content, startKeyword); idx != -1 {
-		// Find the closing curly bracket for the struct
-		start := idx + len(startKeyword)
-		end := strings.Index(content[start:], endKeyword)
-		if end != -1 {
-			// Insert the new repository line before the closing curly bracket
-			insertPos := start + end
-			content = content[:insertPos] + addToStartOfLine + newline + addToEndOfLine + content[insertPos:]
-		}
-	}
-
-	return content
-}
-
-// ToUpperFirst converts the first letter of a string to uppercase
-func ToUpperFirst(s string) string {
-	if len(s) == 0 {
-		return s
-	}
-	return strings.ToUpper(string(s[0])) + s[1:]
-}
-
-// ToLowerFirst converts the first letter of a string to uppercase
-func ToLowerFirst(s string) string {
-	if len(s) == 0 {
-		return s
-	}
-	return strings.ToLower(string(s[0])) + s[1:]
-}
-
-// getPackageName reads the go.mod file to extract the module name (package name)
-func getPackageName(dir string) (string, error) {
-	goModPath := filepath.Join(dir, "go.mod")
-
-	data, err := os.ReadFile(goModPath)
-	if err != nil {
-		return "", err
-	}
-
-	lines := strings.Split(string(data), "\n")
-	for _, line := range lines {
-		if strings.HasPrefix(line, "module") {
-			// Extract the module name (package name)
-			parts := strings.Fields(line)
-			if len(parts) > 1 {
-				return parts[1], nil
-			}
-		}
-	}
-
-	return "", fmt.Errorf("module name not found in go.mod")
-}
-
-func WriteFileInPath(filePath, content string) error {
-	// Write the modified content back to the file
-	var err = os.WriteFile(filePath, []byte(content), 0644)
-	if err != nil {
-		return fmt.Errorf("error writing to file %s: %v", filePath, err)
-	}
-
-	fmt.Printf("Modified file: %s\n", filePath)
-	return nil
 }

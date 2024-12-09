@@ -1,8 +1,8 @@
 package services
 
 import (
-	"github.com/nanda03dev/go-ms-template/src/domain/aggregates"
-	"github.com/nanda03dev/go-ms-template/src/interface/dto"
+	"github.com/nanda03dev/go-ms-template/src/core/domain/aggregates"
+	"github.com/nanda03dev/go-ms-template/src/core/interface/dto"
 )
 
 type TemplateEntityService interface {

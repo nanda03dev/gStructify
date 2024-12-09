@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/nanda03dev/go-ms-template/src/app_module"
-	"github.com/nanda03dev/go-ms-template/src/infrastructure/db"
-	"github.com/nanda03dev/go-ms-template/src/interface/router"
+	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/db"
+	"github.com/nanda03dev/go-ms-template/src/core/interface/router"
 )
 
 func main() {
