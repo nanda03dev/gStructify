@@ -121,7 +121,7 @@ func copyDirAndModify(efs embed.FS, srcDir, destDir, packageName string, entityN
 					// if entityName == "" {
 					// 	continue // Skip renaming if entityName is empty
 					// }
-					destPath = strings.ReplaceAll(destPath, "template_entity", entityName)
+					destPath = replaceFileName(destPath, entityName)
 				}
 
 				// Replace placeholders in the file content
@@ -155,6 +155,10 @@ func modifyFile(filePath, entityName string) error {
 		return ToUpdateCommonResponseMessage(filePath, entityName)
 	}
 
+	if strings.Contains(filePath, "entity.go") {
+		return ToUpdateEntityFile(filePath, entityName)
+	}
+
 	return nil
 }
 
@@ -185,7 +189,7 @@ func ToUpdateRouterFile(filePath, entityName string) error {
 	if !strings.Contains(content, replaceEntityName(handlerLine, entityName)) {
 		startKeyword := "func InitializeRoutes(app *fiber.App) {"
 		endKeyword := "}"
-		content = AddNewLineToExistContent(newLine, content, startKeyword, endKeyword, "\n", "\n")
+		content = AddNewLineToEnd(newLine, content, startKeyword, endKeyword, "", "")
 	}
 
 	return WriteFileInPath(filePath, content)
@@ -206,9 +210,8 @@ func ToUpdateCommonResponseMessage(filePath, entityName string) error {
 
 	startKeyword := "const ("
 	endKeyword := ")"
-	content = AddNewLineToExistContent(newLine, content, startKeyword, endKeyword, fmt.Sprintf("\n //%s \n", ToUpperFirst(entityName)), "")
+	content = AddNewLineToEnd(newLine, content, startKeyword, endKeyword, fmt.Sprintf("\n //%s \n", ToUpperFirst(entityName)), "")
 
-	fmt.Printf("Modified file: %s\n", filePath)
 	return WriteFileInPath(filePath, content)
 }
 
@@ -225,27 +228,45 @@ func ToUpdateAppModuleFile(filePath, entityName string) error {
 	lineToAddInRepoType := fmt.Sprintf("%sRepository aggregates.%sRepository", entityNameUpperFirst, entityNameUpperFirst)
 	repoStartKeyword := "type Repository struct {"
 	endKeyword := "}"
-	content = AddNewLineToExistContent(lineToAddInRepoType, content, repoStartKeyword, endKeyword, "", "")
+	content = AddNewLineToStart(lineToAddInRepoType, content, repoStartKeyword, endKeyword, "", "")
 
-	lineToAddInRepositories := fmt.Sprintf("%sRepository: repositories.New%sRepository(databases)", entityNameUpperFirst, entityNameUpperFirst)
+	lineToAddInRepositories := fmt.Sprintf("%sRepository: repositories.New%sRepository(databases.DB.DB)", entityNameUpperFirst, entityNameUpperFirst)
 	lineToAddInRepositoriesStartKeyword := "var AllRepositories = Repository{"
-	content = AddNewLineToExistContent(lineToAddInRepositories, content, lineToAddInRepositoriesStartKeyword, endKeyword, "", ",\n")
+	content = AddNewLineToStart(lineToAddInRepositories, content, lineToAddInRepositoriesStartKeyword, endKeyword, "", ",")
 
 	lineToAddInServiceType := fmt.Sprintf("%sService services.%sService", entityNameUpperFirst, entityNameUpperFirst)
 	serviceStartKeyword := "type Service struct {"
-	content = AddNewLineToExistContent(lineToAddInServiceType, content, serviceStartKeyword, endKeyword, "", "")
+	content = AddNewLineToStart(lineToAddInServiceType, content, serviceStartKeyword, endKeyword, "", "")
 
 	lineToAddInServices := fmt.Sprintf("%sService: services.New%sService(AllRepositories.%sRepository)", entityNameUpperFirst, entityNameUpperFirst, entityNameUpperFirst)
 	lineToAddInServicesStartKeyword := "var AllServices = Service{"
-	content = AddNewLineToExistContent(lineToAddInServices, content, lineToAddInServicesStartKeyword, endKeyword, "", ",\n")
+	content = AddNewLineToStart(lineToAddInServices, content, lineToAddInServicesStartKeyword, endKeyword, "", ",")
 
 	lineToAddInHandlerType := fmt.Sprintf("%sHandler handlers.%sHandler", entityNameUpperFirst, entityNameUpperFirst)
 	handlerStartKeyword := "type Handler struct {"
-	content = AddNewLineToExistContent(lineToAddInHandlerType, content, handlerStartKeyword, endKeyword, "", "")
+	content = AddNewLineToStart(lineToAddInHandlerType, content, handlerStartKeyword, endKeyword, "", "")
 
 	lineToAddInHanlders := fmt.Sprintf("%sHandler: handlers.New%sHandler(AllServices.%sService)", entityNameUpperFirst, entityNameUpperFirst, entityNameUpperFirst)
 	lineToAddInHanldersStartKeyword := "var AllHandlers = Handler{"
-	content = AddNewLineToExistContent(lineToAddInHanlders, content, lineToAddInHanldersStartKeyword, endKeyword, "", ",\n")
+	content = AddNewLineToStart(lineToAddInHanlders, content, lineToAddInHanldersStartKeyword, endKeyword, "", ",")
+
+	return WriteFileInPath(filePath, content)
+}
+
+func ToUpdateEntityFile(filePath, entityName string) error {
+	// Read the existing file content
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return fmt.Errorf("error reading file %s: %v", filePath, err)
+	}
+
+	content := string(data)
+	entityNameUpperFirst := ToUpperFirst(entityName)
+
+	lineToAddInRepoType := fmt.Sprintf("&%s{},", entityNameUpperFirst)
+	repoStartKeyword := "var Entities = []interface{}{"
+	endKeyword := "}"
+	content = AddNewLineToStart(lineToAddInRepoType, content, repoStartKeyword, endKeyword, "", "")
 
 	return WriteFileInPath(filePath, content)
 }

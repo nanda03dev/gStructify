@@ -1,4 +1,7 @@
-1. Copy and Modify files - done
-2. Import local package - done
-3. install go pakcage - done
-4. handle if multple enitites added Ex modifing same file for adding routes.
+1. Copy and Modify files. - done
+2. Import local package. - done
+3. install go pakcage. - done
+4. handle if multple enitites added Ex modifing same file for adding routes. - done
+5. add other file like, Makefile.
+6. add repository and db function.
+7. add to go pkg and mention details in README file

@@ -1,5 +1,14 @@
 package entity
 
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
+
 type TemplateEntity struct {
-	ID string `bson:"id,omitempty"`
+	gorm.Model
+	ID        string `gorm:"primaryKey"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

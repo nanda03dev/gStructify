@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 // Reads the go.mod file to extract the module name (package name)
@@ -31,7 +32,24 @@ func getPackageName(dir string) (string, error) {
 }
 
 // This function Add new line to the content at specfic index
-func AddNewLineToExistContent(newline, content, startKeyword, endKeyword, addToStartOfLine, addToEndOfLine string) string {
+func AddNewLineToStart(newline, content, startKeyword, endKeyword, addToStartOfLine, addToEndOfLine string) string {
+	if strings.Contains(content, newline) {
+		return content // Line already exists, no modification needed
+	}
+
+	// Find the type Repository struct block and locate the closing bracket
+	if idx := strings.Index(content, startKeyword); idx != -1 {
+		// Find the closing curly bracket for the struct
+		start := idx + len(startKeyword)
+		// end := strings.Index(content[start:], endKeyword)
+
+		content = content[:start] + "\n" + addToStartOfLine + newline + addToEndOfLine + "\n" + content[start+1:]
+	}
+
+	return content
+}
+
+func AddNewLineToEnd(newline, content, startKeyword, endKeyword, addToStartOfLine, addToEndOfLine string) string {
 	if strings.Contains(content, newline) {
 		return content // Line already exists, no modification needed
 	}
@@ -72,8 +90,17 @@ func replaceEntityName(content, entityName string) string {
 	entityNameUpperFirst := ToUpperFirst(entityName)
 	content = strings.ReplaceAll(content, "TemplateEntity", entityNameUpperFirst)
 	content = strings.ReplaceAll(content, "templateEntity", entityName)
+	content = strings.ReplaceAll(content, "templateEntity", entityName)
+	content = strings.ReplaceAll(content, "ms-name", msName)
+	content = strings.ReplaceAll(content, "EPOCH", GetEpoch())
 
 	return content
+}
+
+func replaceFileName(pathName string, entityName string) string {
+	pathName = strings.ReplaceAll(pathName, "template_entity", entityName)
+	pathName = strings.ReplaceAll(pathName, "EPOCH", GetEpoch())
+	return pathName
 }
 
 // Write file content in  given file path
@@ -84,6 +111,15 @@ func WriteFileInPath(filePath, content string) error {
 		return fmt.Errorf("error writing to file %s: %v", filePath, err)
 	}
 
-	fmt.Printf("Modified file: %s\n", filePath)
 	return nil
+}
+
+func GetEpoch() string {
+	// Get the current time
+	currentTime := time.Now()
+
+	// Format the time as YYYYMMDDHHMMSS
+	formattedTime := currentTime.Format("20060102150405")
+
+	return formattedTime
 }

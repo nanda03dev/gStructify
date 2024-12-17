@@ -8,9 +8,10 @@ import (
 func InitializeRoutes(app *fiber.App) {
 
 	var appModule = app_module.GetAppModule()
-
-	templateEntityHandler := appModule.Handler.TemplateEntityHandler
 	api := app.Group("/api")
+
+	// TemplateEntity CRUD API'S
+	templateEntityHandler := appModule.Handler.TemplateEntityHandler
 	templateEntityV1Routes := api.Group("/v1/templateEntity")
 	templateEntityV1Routes.Post("/", templateEntityHandler.CreateTemplateEntity)
 	templateEntityV1Routes.Get("/:id", templateEntityHandler.GetTemplateEntityByID)

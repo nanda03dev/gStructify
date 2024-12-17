@@ -36,7 +36,7 @@ func GetAppModule() *AppModule {
 		var databases = db.ConnectAll()
 
 		var AllRepositories = Repository{
-			TemplateEntityRepository: repositories.NewTemplateEntityRepository(databases),
+			TemplateEntityRepository: repositories.NewTemplateEntityRepository(databases.DB.DB),
 		}
 
 		var AllServices = Service{

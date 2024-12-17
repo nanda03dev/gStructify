@@ -1,12 +1,16 @@
 package aggregates
 
 import (
+	"time"
+
 	"github.com/nanda03dev/go-ms-template/src/core/interface/dto"
 	"github.com/nanda03dev/go-ms-template/src/helper"
 )
 
 type TemplateEntity struct {
-	ID string
+	ID        string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func NewTemplateEntity(createTemplateEntityDTO dto.CreateTemplateEntityDTO) *TemplateEntity {

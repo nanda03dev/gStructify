@@ -39,7 +39,7 @@ func (c *templateEntityHandler) CreateTemplateEntity(ctx *fiber.Ctx) error {
 		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{"error": common.InvalidRequestError})
 	}
 
-	return ctx.Status(http.StatusOK).JSON(result)
+	return ctx.Status(http.StatusOK).JSON(c.toResponseDTO(result))
 }
 
 func (c *templateEntityHandler) GetTemplateEntityByID(ctx *fiber.Ctx) error {
@@ -50,7 +50,7 @@ func (c *templateEntityHandler) GetTemplateEntityByID(ctx *fiber.Ctx) error {
 		return ctx.Status(http.StatusNotFound).JSON(fiber.Map{"error": common.TemplateEntityNotFoundError})
 	}
 
-	return ctx.Status(http.StatusOK).JSON(templateEntity)
+	return ctx.Status(http.StatusOK).JSON(c.toResponseDTO(templateEntity))
 }
 
 func (c *templateEntityHandler) UpdateTemplateEntityById(ctx *fiber.Ctx) error {
@@ -73,7 +73,7 @@ func (c *templateEntityHandler) UpdateTemplateEntityById(ctx *fiber.Ctx) error {
 		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{"error": common.InvalidRequestError})
 	}
 
-	return ctx.Status(http.StatusOK).JSON(result)
+	return ctx.Status(http.StatusOK).JSON(c.toResponseDTO(result))
 }
 
 func (c *templateEntityHandler) DeleteTemplateEntityById(ctx *fiber.Ctx) error {
@@ -92,4 +92,11 @@ func (c *templateEntityHandler) DeleteTemplateEntityById(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(http.StatusOK).JSON(fiber.Map{"data": common.DataDeletedSuccessfully})
+}
+
+// Helper function to convert Entity to TemplateEntityResponseDTO
+func (c *templateEntityHandler) toResponseDTO(templateEntity *aggregates.TemplateEntity) dto.TemplateEntityResponseDTO {
+	return dto.TemplateEntityResponseDTO{
+		ID: templateEntity.ID,
+	}
 }
