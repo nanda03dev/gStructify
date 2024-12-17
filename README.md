@@ -2,6 +2,10 @@
 
 A Golang package designed to generate high-performance backend services using fasthttp. It follows the Clean Architecture pattern, automatically generating the domain, infrastructure, handlers, and routing layers for each service, streamlining the development process.
 
+## Features
+- Automatically generates backend code structure for Go projects.
+- Creates service folders with pre-configured Go modules.
+- Simplifies repetitive tasks in setting up backend services.
 
 ## Project Structure
 
@@ -58,32 +62,44 @@ project/
 - Go 1.XX or higher
 - Dependencies specified in `go.mod`
 
-### Installation
+## Installation
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd project
-   ```
+To install `gStructify`, run the following command:
 
-2. Install dependencies:
-   ```bash
-   go mod tidy
-   ```
-
-### Running the Application
-
-To start the application, run:
 ```bash
-go run main.go
+go install github.com/nanda03dev/gStructify@latest
 ```
 
-### Testing
+## Usage
 
-To run tests, execute:
+Follow these steps to generate entries for your Go microservice:
+
+### Step 1: Create a Microservice Directory
+Create a directory for your microservice:
 ```bash
-go test ./...
+mkdir user-ms
 ```
+
+### Step 2: Initialize a Go Module
+Navigate to the directory and initialize a `go.mod` file:
+```bash
+cd user-ms
+go mod init user-ms
+```
+
+### Step 3: Run the Generator Command
+Run the `gStructify` command with your desired entity name:
+```bash
+gStructify -entity=user
+```
+
+This will:
+1. Generate a structured set of files for the `user` entity.
+2. Populate the necessary Go files within the `user-ms` directory.
+
+---
+
+Happy coding with `gStructify`!
 
 ## Contributing
 
