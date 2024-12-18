@@ -32,16 +32,16 @@ func (c *templateEntityHandler) CreateTemplateEntity(ctx *fiber.Ctx) error {
 	var templateEntityDTO dto.CreateTemplateEntityDTO
 
 	if err := ctx.BodyParser(&templateEntityDTO); err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{"error": common.InvalidRequestError})
+		return ctx.Status(http.StatusBadRequest).JSON(ErrorResponse(common.InvalidRequestError))
 	}
 
 	result, err := c.templateEntityService.Create(templateEntityDTO)
 
 	if err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{"error": common.InvalidRequestError})
+		return ctx.Status(http.StatusBadRequest).JSON(ErrorResponse(common.InvalidRequestError))
 	}
 
-	return ctx.Status(http.StatusOK).JSON(c.toResponseDTO(result))
+	return ctx.Status(http.StatusOK).JSON(SuccessResponse(c.toResponseDTO(result)))
 }
 
 func (c *templateEntityHandler) GetTemplateEntityByID(ctx *fiber.Ctx) error {
@@ -49,25 +49,25 @@ func (c *templateEntityHandler) GetTemplateEntityByID(ctx *fiber.Ctx) error {
 
 	templateEntity, err := c.templateEntityService.GetById(idParam)
 	if err != nil {
-		return ctx.Status(http.StatusNotFound).JSON(fiber.Map{"error": common.TemplateEntityNotFoundError})
+		return ctx.Status(http.StatusNotFound).JSON(ErrorResponse(common.TemplateEntityNotFoundError))
 	}
 
-	return ctx.Status(http.StatusOK).JSON(c.toResponseDTO(templateEntity))
+	return ctx.Status(http.StatusOK).JSON(SuccessResponse(c.toResponseDTO(templateEntity)))
 }
 
 func (c *templateEntityHandler) FindTemplateEntityWithFilter(ctx *fiber.Ctx) error {
 	var filterDTO common.FilterQueryDTO
 
 	if err := ctx.BodyParser(&filterDTO); err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{"error": common.InvalidRequestError})
+		return ctx.Status(http.StatusBadRequest).JSON(ErrorResponse(common.InvalidRequestError))
 	}
 
 	templateEntitys, err := c.templateEntityService.FindWithFilter(filterDTO)
 	if err != nil {
-		return ctx.Status(http.StatusNotFound).JSON(fiber.Map{"error": common.TemplateEntityNotFoundError})
+		return ctx.Status(http.StatusNotFound).JSON(ErrorResponse(common.TemplateEntityNotFoundError))
 	}
 
-	return ctx.Status(http.StatusOK).JSON(c.toResponseDTOArray(templateEntitys))
+	return ctx.Status(http.StatusOK).JSON(SuccessResponse(c.toResponseDTOArray(templateEntitys)))
 }
 
 func (c *templateEntityHandler) UpdateTemplateEntityById(ctx *fiber.Ctx) error {
@@ -75,22 +75,22 @@ func (c *templateEntityHandler) UpdateTemplateEntityById(ctx *fiber.Ctx) error {
 	_, err := c.templateEntityService.GetById(idParam)
 
 	if err != nil {
-		return ctx.Status(http.StatusNotFound).JSON(fiber.Map{"error": common.TemplateEntityNotFoundError})
+		return ctx.Status(http.StatusNotFound).JSON(ErrorResponse(common.TemplateEntityNotFoundError))
 	}
 
 	var templateEntityDTO dto.UpdateTemplateEntityDTO
 
 	if err := ctx.BodyParser(&templateEntityDTO); err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{"error": common.InvalidRequestError})
+		return ctx.Status(http.StatusBadRequest).JSON(ErrorResponse(common.InvalidRequestError))
 	}
 
 	result, err := c.templateEntityService.Update(idParam, templateEntityDTO)
 
 	if err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{"error": common.InvalidRequestError})
+		return ctx.Status(http.StatusBadRequest).JSON(ErrorResponse(common.InvalidRequestError))
 	}
 
-	return ctx.Status(http.StatusOK).JSON(c.toResponseDTO(result))
+	return ctx.Status(http.StatusOK).JSON(SuccessResponse(c.toResponseDTO(result)))
 }
 
 func (c *templateEntityHandler) DeleteTemplateEntityById(ctx *fiber.Ctx) error {
@@ -99,16 +99,16 @@ func (c *templateEntityHandler) DeleteTemplateEntityById(ctx *fiber.Ctx) error {
 	_, err := c.templateEntityService.GetById(idParam)
 
 	if err != nil {
-		return ctx.Status(http.StatusNotFound).JSON(fiber.Map{"error": common.TemplateEntityNotFoundError})
+		return ctx.Status(http.StatusNotFound).JSON(ErrorResponse(common.TemplateEntityNotFoundError))
 	}
 
 	deleteErr := c.templateEntityService.Delete(idParam)
 
 	if deleteErr != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{"error": common.ErrorDeletingData})
+		return ctx.Status(http.StatusBadRequest).JSON(ErrorResponse(common.ErrorDeletingData))
 	}
 
-	return ctx.Status(http.StatusOK).JSON(fiber.Map{"data": common.DataDeletedSuccessfully})
+	return ctx.Status(http.StatusOK).JSON(SuccessResponse(common.DataDeletedSuccessfully))
 }
 
 // Helper function to convert Entity to TemplateEntityResponseDTO
@@ -120,7 +120,7 @@ func (c *templateEntityHandler) toResponseDTO(templateEntity *aggregates.Templat
 
 // Function to convert an array of TemplateEntitys to an array of TemplateEntityResponseDTOs
 func (c *templateEntityHandler) toResponseDTOArray(templateEntitys []*aggregates.TemplateEntity) []dto.TemplateEntityResponseDTO {
-	var responseDTOs []dto.TemplateEntityResponseDTO
+	var responseDTOs = make([]dto.BookResponseDTO, len(templateEntitys))
 	for _, templateEntity := range templateEntitys {
 		responseDTOs = append(responseDTOs, c.toResponseDTO(templateEntity))
 	}

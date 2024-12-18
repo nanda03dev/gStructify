@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"fmt"
+	"strings"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -43,36 +44,46 @@ func (r *BaseRepository[T]) FindWithFilter(filterQueryDTO common.FilterQueryDTO)
 
 	// Apply filters
 	query := r.db.Model(new(T))
-	for _, filter := range filterQueryDTO.Filters {
-		switch filter.Operation {
-		case common.OperationEQ:
-			query = query.Where(fmt.Sprintf("%s = ?", filter.Key), filter.Value)
-		case common.OperationIN:
-			query = query.Where(fmt.Sprintf("%s IN (?)", filter.Key), filter.Value)
-		case common.OperationGT:
-			query = query.Where(fmt.Sprintf("%s > ?", filter.Key), filter.Value)
-		case common.OperationLT:
-			query = query.Where(fmt.Sprintf("%s < ?", filter.Key), filter.Value)
-		case common.OperationGTE:
-			query = query.Where(fmt.Sprintf("%s >= ?", filter.Key), filter.Value)
-		case common.OperationLTE:
-			query = query.Where(fmt.Sprintf("%s <= ?", filter.Key), filter.Value)
-		case common.OperationNQ:
-			query = query.Where(fmt.Sprintf("%s != ?", filter.Key), filter.Value)
+	// Determine whether to use AND or OR
+	operationFunc := query.Where // Default to AND
+	if strings.ToUpper(filterQueryDTO.Logic) == "OR" {
+		operationFunc = query.Or
+	}
+
+	// Loop through filters and dynamically apply conditions
+	for _, filter := range filterQueryDTO.Conditions {
+		var condition string
+		switch filter.Operator {
+		case common.ConditionEQ:
+			condition = fmt.Sprintf("%s = ?", filter.Key)
+		case common.ConditionIN:
+			condition = fmt.Sprintf("%s IN (?)", filter.Key)
+		case common.ConditionGT:
+			condition = fmt.Sprintf("%s > ?", filter.Key)
+		case common.ConditionLT:
+			condition = fmt.Sprintf("%s < ?", filter.Key)
+		case common.ConditionGTE:
+			condition = fmt.Sprintf("%s >= ?", filter.Key)
+		case common.ConditionLTE:
+			condition = fmt.Sprintf("%s <= ?", filter.Key)
+		case common.ConditionNQ:
+			condition = fmt.Sprintf("%s != ?", filter.Key)
 		default:
-			query = query.Where(fmt.Sprintf("%s = ?", filter.Key), filter.Value)
+			condition = fmt.Sprintf("%s = ?", filter.Key)
 		}
+
+		query = operationFunc(condition, filter.Value)
 	}
 
 	// Apply sorting
-	for _, order := range filterQueryDTO.Orders {
+	for _, order := range filterQueryDTO.Sorts {
 		// Check order type (ASC or DESC)
-		if order.Type == common.OrderASC {
+		if order.Type == common.SortASC {
 			query = query.Order(clause.OrderByColumn{
 				Column: clause.Column{Name: order.Key},
 				Desc:   false,
 			})
-		} else if order.Type == common.OrderDESC {
+		} else if order.Type == common.SortDESC {
 			query = query.Order(clause.OrderByColumn{
 				Column: clause.Column{Name: order.Key},
 				Desc:   true,
@@ -83,14 +94,14 @@ func (r *BaseRepository[T]) FindWithFilter(filterQueryDTO common.FilterQueryDTO)
 	}
 
 	// Apply pagination (limit and skip) with default values if not provided
-	if filterQueryDTO.Limit > 0 {
-		query = query.Limit(int(filterQueryDTO.Limit))
+	if filterQueryDTO.MaxResults > 0 {
+		query = query.Limit(int(filterQueryDTO.MaxResults))
 	} else {
 		// Default to 10 if limit is not provided
 		query = query.Limit(10)
 	}
-	if filterQueryDTO.OffSet > 0 {
-		query = query.Offset(int(filterQueryDTO.OffSet))
+	if filterQueryDTO.Offset > 0 {
+		query = query.Offset(int(filterQueryDTO.Offset))
 	}
 
 	// Execute the query

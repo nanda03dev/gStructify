@@ -1,34 +1,34 @@
 package common
 
 // Operation defines the possible filter operations.
-type Operation string
+type ConditionOperation string
 
 const (
-	OperationEQ  Operation = "EQ"
-	OperationIN  Operation = "IN"
-	OperationGT  Operation = "GT"
-	OperationLT  Operation = "LT"
-	OperationGTE Operation = "GTE"
-	OperationLTE Operation = "LTE"
-	OperationNQ  Operation = "NQ"
+	ConditionEQ  ConditionOperation = "EQ"
+	ConditionIN  ConditionOperation = "IN"
+	ConditionGT  ConditionOperation = "GT"
+	ConditionLT  ConditionOperation = "LT"
+	ConditionGTE ConditionOperation = "GTE"
+	ConditionLTE ConditionOperation = "LTE"
+	ConditionNQ  ConditionOperation = "NQ"
 )
 
-type OrderType string
+type SortDirection string
 
 const (
-	OrderASC  OrderType = "ASC"
-	OrderDESC OrderType = "DESC"
+	SortASC  SortDirection = "ASC"
+	SortDESC SortDirection = "DESC"
 )
 
 // Order struct to hold sorting information
-type Order struct {
-	Key  string    `json:"Key"`
-	Type OrderType `json:"Type"`
+type Sort struct {
+	Key  string        `json:"key"`
+	Type SortDirection `json:"type"`
 }
 
 // Filter defines the filter criteria.
-type Filter struct {
-	Key       string    `json:"Key"`
-	Value     string    `json:"Value"`
-	Operation Operation `json:"Operation"`
+type Condition struct {
+	Key      string             `json:"key"`
+	Value    string             `json:"value"`
+	Operator ConditionOperation `json:"operator"`
 }
