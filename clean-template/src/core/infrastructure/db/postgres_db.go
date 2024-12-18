@@ -22,9 +22,14 @@ func ConnectPostgresDB(uri string) (*PostgresDB, error) {
 		return nil, err
 	}
 
-	// Run migrations before starting the application
+	// Run raw migrations before starting the application
 	if err := RunRawMigration(postgresDB.DB); err != nil {
-		log.Fatalf("Could not run migrations: %v", err)
+		log.Fatalf("Could not run raw migrations: %v", err)
+	}
+
+	// Run model migrations before starting the application
+	if err := RunModelMigration(postgresDB.DB); err != nil {
+		log.Fatalf("Could not run model migrations: %v", err)
 	}
 
 	return postgresDB, nil
