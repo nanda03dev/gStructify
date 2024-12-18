@@ -14,6 +14,7 @@ func InitializeRoutes(app *fiber.App) {
 	templateEntityHandler := appModule.Handler.TemplateEntityHandler
 	templateEntityV1Routes := api.Group("/v1/templateEntity")
 	templateEntityV1Routes.Post("/", templateEntityHandler.CreateTemplateEntity)
+	templateEntityV1Routes.Post("/filter", templateEntityHandler.FindTemplateEntityWithFilter)
 	templateEntityV1Routes.Get("/:id", templateEntityHandler.GetTemplateEntityByID)
 	templateEntityV1Routes.Put("/:id", templateEntityHandler.UpdateTemplateEntityById)
 	templateEntityV1Routes.Delete("/:id", templateEntityHandler.DeleteTemplateEntityById)

@@ -3,6 +3,7 @@ package aggregates
 import (
 	"time"
 
+	"github.com/nanda03dev/go-ms-template/src/common"
 	"github.com/nanda03dev/go-ms-template/src/core/interface/dto"
 	"github.com/nanda03dev/go-ms-template/src/helper"
 )
@@ -29,6 +30,7 @@ func UpdateTemplateEntity(id string, updateTemplateEntityDTO dto.UpdateTemplateE
 type TemplateEntityRepository interface {
 	Create(templateEntity *TemplateEntity) (*TemplateEntity, error)
 	FindById(id string) (*TemplateEntity, error)
+	FindWithFilter(filterQueryDTO common.FilterQueryDTO) ([]*TemplateEntity, error)
 	Update(templateEntity *TemplateEntity) (*TemplateEntity, error)
 	Delete(id string) error
 }

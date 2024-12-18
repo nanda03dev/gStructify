@@ -6,12 +6,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/nanda03dev/go-ms-template/src/common"
 	"github.com/nanda03dev/go-ms-template/src/core/application/services"
+	"github.com/nanda03dev/go-ms-template/src/core/domain/aggregates"
 	"github.com/nanda03dev/go-ms-template/src/core/interface/dto"
 )
 
 type TemplateEntityHandler interface {
 	CreateTemplateEntity(ctx *fiber.Ctx) error
 	GetTemplateEntityByID(ctx *fiber.Ctx) error
+	FindTemplateEntityWithFilter(ctx *fiber.Ctx) error
 	UpdateTemplateEntityById(ctx *fiber.Ctx) error
 	DeleteTemplateEntityById(ctx *fiber.Ctx) error
 }
@@ -51,6 +53,21 @@ func (c *templateEntityHandler) GetTemplateEntityByID(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(http.StatusOK).JSON(c.toResponseDTO(templateEntity))
+}
+
+func (c *templateEntityHandler) FindTemplateEntityWithFilter(ctx *fiber.Ctx) error {
+	var filterDTO common.FilterQueryDTO
+
+	if err := ctx.BodyParser(&filterDTO); err != nil {
+		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{"error": common.InvalidRequestError})
+	}
+
+	templateEntitys, err := c.templateEntityService.FindWithFilter(filterDTO)
+	if err != nil {
+		return ctx.Status(http.StatusNotFound).JSON(fiber.Map{"error": common.TemplateEntityNotFoundError})
+	}
+
+	return ctx.Status(http.StatusOK).JSON(c.toResponseDTOArray(templateEntitys))
 }
 
 func (c *templateEntityHandler) UpdateTemplateEntityById(ctx *fiber.Ctx) error {
@@ -99,4 +116,13 @@ func (c *templateEntityHandler) toResponseDTO(templateEntity *aggregates.Templat
 	return dto.TemplateEntityResponseDTO{
 		ID: templateEntity.ID,
 	}
+}
+
+// Function to convert an array of TemplateEntitys to an array of TemplateEntityResponseDTOs
+func (c *templateEntityHandler) toResponseDTOArray(templateEntitys []*aggregates.TemplateEntity) []dto.TemplateEntityResponseDTO {
+	var responseDTOs []dto.TemplateEntityResponseDTO
+	for _, templateEntity := range templateEntitys {
+		responseDTOs = append(responseDTOs, c.toResponseDTO(templateEntity))
+	}
+	return responseDTOs
 }

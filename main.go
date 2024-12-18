@@ -170,6 +170,7 @@ func ToUpdateRouterFile(filePath, entityName string) error {
 	templateEntityV1Routes := api.Group("/v1/templateEntity")
 	templateEntityV1Routes.Post("/", templateEntityHandler.CreateTemplateEntity)
 	templateEntityV1Routes.Get("/:id", templateEntityHandler.GetTemplateEntityByID)
+	templateEntityV1Routes.Post("/filter", templateEntityHandler.FindTemplateEntityWithFilter)
 	templateEntityV1Routes.Put("/:id", templateEntityHandler.UpdateTemplateEntityById)
 	templateEntityV1Routes.Delete("/:id", templateEntityHandler.DeleteTemplateEntityById)
 	`

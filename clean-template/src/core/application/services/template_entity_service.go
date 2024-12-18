@@ -8,6 +8,7 @@ import (
 type TemplateEntityService interface {
 	Create(createTemplateEntityDTO dto.CreateTemplateEntityDTO) (*aggregates.TemplateEntity, error)
 	GetById(id string) (*aggregates.TemplateEntity, error)
+	FindWithFilter(filterQueryDTO common.FilterQueryDTO) ([]*aggregates.TemplateEntity, error)
 	Update(id string, updateTemplateEntityDTO dto.UpdateTemplateEntityDTO) (*aggregates.TemplateEntity, error)
 	Delete(id string) error
 }
@@ -29,6 +30,10 @@ func (s *templateEntityService) Create(createTemplateEntityDTO dto.CreateTemplat
 
 func (s *templateEntityService) GetById(id string) (*aggregates.TemplateEntity, error) {
 	return s.templateEntityRepo.FindById(id)
+}
+
+func (s *templateEntityService) FindWithFilter(filterQueryDTO common.FilterQueryDTO) ([]*aggregates.TemplateEntity, error) {
+	return s.templateEntityRepo.FindWithFilter(filterQueryDTO)
 }
 
 func (s *templateEntityService) Update(id string, updateTemplateEntityDTO dto.UpdateTemplateEntityDTO) (*aggregates.TemplateEntity, error) {
