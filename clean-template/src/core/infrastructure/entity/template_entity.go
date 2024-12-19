@@ -37,5 +37,8 @@ func (e *TemplateEntity) GetEvent(operationType common.EVENT_TYPE) common.Event 
 		EntityId:   e.ID,
 		EntityName: e.GetEntityName(),
 		Type:       operationType,
+		Config: common.EVENT_CONFIG{
+			EventStore: true,
+		},
 	}
 }

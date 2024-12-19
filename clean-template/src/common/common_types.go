@@ -43,9 +43,14 @@ const (
 
 type ENTITY_NAME string
 
+type EVENT_CONFIG struct {
+	EventStore bool
+}
+
 type Event struct {
 	ID         string
 	EntityId   string
 	EntityName ENTITY_NAME
 	Type       EVENT_TYPE
+	Config     EVENT_CONFIG
 }
