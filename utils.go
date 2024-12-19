@@ -33,7 +33,7 @@ func getPackageName(dir string) (string, error) {
 
 // This function Add new line to the content at specfic index
 func AddNewLineToStart(newline, content, startKeyword, endKeyword, addToStartOfLine, addToEndOfLine string) string {
-	if strings.Contains(content, newline) {
+	if strings.Contains(normalizeWhitespace(content), normalizeWhitespace(newline)) {
 		return content // Line already exists, no modification needed
 	}
 
@@ -50,7 +50,7 @@ func AddNewLineToStart(newline, content, startKeyword, endKeyword, addToStartOfL
 }
 
 func AddNewLineToEnd(newline, content, startKeyword, endKeyword, addToStartOfLine, addToEndOfLine string) string {
-	if strings.Contains(content, newline) {
+	if strings.Contains(normalizeWhitespace(content), normalizeWhitespace(newline)) {
 		return content // Line already exists, no modification needed
 	}
 
@@ -122,4 +122,9 @@ func GetEpoch() string {
 	formattedTime := currentTime.Format("20060102150405")
 
 	return formattedTime
+}
+
+func normalizeWhitespace(input string) string {
+	// Replace multiple spaces with a single space
+	return strings.Join(strings.Fields(input), " ")
 }

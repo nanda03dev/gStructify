@@ -16,6 +16,8 @@ project/
 ├── main.go                              # Application entry point
 ├── go.mod
 ├── src/                                 # Source code folder
+│   ├── app_module/                      # Central module initialization
+│   │   └── app_module.go               
 │   ├── common/                          # Common utility functions
 │   │   ├── constants.go                 # UUID generator
 │   ├── core/                            # Contains all the layers

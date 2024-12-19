@@ -143,15 +143,26 @@ func copyDirAndModify(efs embed.FS, srcDir, destDir, packageName string, entityN
 
 // modifyFile modifies the destination file content to include additional code
 func modifyFile(filePath, entityName string) error {
-	if strings.Contains(filePath, "app_module.go") {
-		return ToUpdateAppModuleFile(filePath, entityName)
+	if strings.Contains(filePath, "repositories.go") {
+		return ToUpdateRepositoriesFile(filePath, entityName)
 	}
+
+	if strings.Contains(filePath, "services.go") {
+		return ToUpdateServicesFile(filePath, entityName)
+	}
+	if strings.Contains(filePath, "handlers.go") {
+		return ToUpdateHandlersFile(filePath, entityName)
+	}
+
+	// if strings.Contains(filePath, "app_module.go") {
+	// 	return ToUpdateAppModuleFile(filePath, entityName)
+	// }
 
 	if strings.Contains(filePath, "routes.go") {
 		return ToUpdateRouterFile(filePath, entityName)
 	}
 
-	if strings.Contains(filePath, "response-messages.go") {
+	if strings.Contains(filePath, "response_messages.go") {
 		return ToUpdateCommonResponseMessage(filePath, entityName)
 	}
 
@@ -166,7 +177,7 @@ func ToUpdateRouterFile(filePath, entityName string) error {
 
 	var newLine = `
 	// TemplateEntity CRUD API'S
-	templateEntityHandler := appModule.Handler.TemplateEntityHandler
+	templateEntityHandler := AllHandlers.TemplateEntityHandler
 	templateEntityV1Routes := api.Group("/v1/templateEntity")
 	templateEntityV1Routes.Post("/", templateEntityHandler.CreateTemplateEntity)
 	templateEntityV1Routes.Get("/:id", templateEntityHandler.GetTemplateEntityByID)
@@ -185,10 +196,10 @@ func ToUpdateRouterFile(filePath, entityName string) error {
 
 	content := string(data)
 
-	handlerLine := "templateEntityHandler := appModule.Handler.TemplateEntityHandler"
+	handlerLine := "templateEntityHandler := AllHandlers.TemplateEntityHandler"
 
 	if !strings.Contains(content, replaceEntityName(handlerLine, entityName)) {
-		startKeyword := "func InitializeRoutes(app *fiber.App) {"
+		startKeyword := "func InitializeRoutes(fiberApp *fiber.App) {"
 		endKeyword := "}"
 		content = AddNewLineToEnd(newLine, content, startKeyword, endKeyword, "", "")
 	}
@@ -231,7 +242,7 @@ func ToUpdateAppModuleFile(filePath, entityName string) error {
 	endKeyword := "}"
 	content = AddNewLineToStart(lineToAddInRepoType, content, repoStartKeyword, endKeyword, "", "")
 
-	lineToAddInRepositories := fmt.Sprintf("%sRepository: repositories.New%sRepository(databases.DB.DB)", entityNameUpperFirst, entityNameUpperFirst)
+	lineToAddInRepositories := fmt.Sprintf("%sRepository: repositories.New%sRepository()", entityNameUpperFirst, entityNameUpperFirst)
 	lineToAddInRepositoriesStartKeyword := "var AllRepositories = Repository{"
 	content = AddNewLineToStart(lineToAddInRepositories, content, lineToAddInRepositoriesStartKeyword, endKeyword, "", ",")
 
@@ -268,6 +279,73 @@ func ToUpdateEntityFile(filePath, entityName string) error {
 	repoStartKeyword := "var Entities = []interface{}{"
 	endKeyword := "}"
 	content = AddNewLineToStart(lineToAddInRepoType, content, repoStartKeyword, endKeyword, "", "")
+
+	return WriteFileInPath(filePath, content)
+}
+
+func ToUpdateRepositoriesFile(filePath, entityName string) error {
+	// Read the existing file content
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return fmt.Errorf("error reading file %s: %v", filePath, err)
+	}
+
+	content := string(data)
+	entityNameUpperFirst := ToUpperFirst(entityName)
+
+	lineToAddInRepoType := fmt.Sprintf("%sRepository aggregates.%sRepository", entityNameUpperFirst, entityNameUpperFirst)
+	repoStartKeyword := "type Repositories struct {"
+	endKeyword := "}"
+	content = AddNewLineToStart(lineToAddInRepoType, content, repoStartKeyword, endKeyword, "", "")
+
+	lineToAddInRepositories := fmt.Sprintf("%sRepository: New%sRepository()", entityNameUpperFirst, entityNameUpperFirst)
+	lineToAddInRepositoriesStartKeyword := "AllRepositories = &Repositories{"
+	content = AddNewLineToStart(lineToAddInRepositories, content, lineToAddInRepositoriesStartKeyword, endKeyword, "", ",")
+
+	return WriteFileInPath(filePath, content)
+}
+
+func ToUpdateServicesFile(filePath, entityName string) error {
+	// Read the existing file content
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return fmt.Errorf("error reading file %s: %v", filePath, err)
+	}
+
+	content := string(data)
+	entityNameUpperFirst := ToUpperFirst(entityName)
+	endKeyword := "}"
+
+	lineToAddInServiceType := fmt.Sprintf("%sService %sService", entityNameUpperFirst, entityNameUpperFirst)
+	serviceStartKeyword := "type Services struct {"
+	content = AddNewLineToStart(lineToAddInServiceType, content, serviceStartKeyword, endKeyword, "", "")
+
+	lineToAddInServices := fmt.Sprintf("%sService: New%sService(AllRepositories.%sRepository)", entityNameUpperFirst, entityNameUpperFirst, entityNameUpperFirst)
+	lineToAddInServicesStartKeyword := "AllServices = &Services{"
+	content = AddNewLineToStart(lineToAddInServices, content, lineToAddInServicesStartKeyword, endKeyword, "", ",")
+
+	return WriteFileInPath(filePath, content)
+}
+
+func ToUpdateHandlersFile(filePath, entityName string) error {
+	// Read the existing file content
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return fmt.Errorf("error reading file %s: %v", filePath, err)
+	}
+
+	content := string(data)
+	entityNameUpperFirst := ToUpperFirst(entityName)
+	endKeyword := "}"
+
+	lineToAddInHandlerType := fmt.Sprintf("%sHandler %sHandler", entityNameUpperFirst, entityNameUpperFirst)
+
+	handlerStartKeyword := "type Handlers struct {"
+	content = AddNewLineToStart(lineToAddInHandlerType, content, handlerStartKeyword, endKeyword, "", "")
+
+	lineToAddInHanlders := fmt.Sprintf("%sHandler: New%sHandler(AllServices.%sService)", entityNameUpperFirst, entityNameUpperFirst, entityNameUpperFirst)
+	lineToAddInHanldersStartKeyword := "AllHandlers = &Handlers{"
+	content = AddNewLineToStart(lineToAddInHanlders, content, lineToAddInHanldersStartKeyword, endKeyword, "", ",")
 
 	return WriteFileInPath(filePath, content)
 }

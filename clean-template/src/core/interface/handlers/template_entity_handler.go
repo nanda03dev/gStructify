@@ -120,7 +120,7 @@ func (c *templateEntityHandler) toResponseDTO(templateEntity *aggregates.Templat
 
 // Function to convert an array of TemplateEntitys to an array of TemplateEntityResponseDTOs
 func (c *templateEntityHandler) toResponseDTOArray(templateEntitys []*aggregates.TemplateEntity) []dto.TemplateEntityResponseDTO {
-	var responseDTOs = make([]dto.BookResponseDTO, 0, len(templateEntitys))
+	var responseDTOs = make([]dto.TemplateEntityResponseDTO, 0, len(templateEntitys))
 	for _, templateEntity := range templateEntitys {
 		responseDTOs = append(responseDTOs, c.toResponseDTO(templateEntity))
 	}

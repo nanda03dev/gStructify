@@ -8,9 +8,9 @@ import (
 	"syscall"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/nanda03dev/go-ms-template/src/app_module"
 	"github.com/nanda03dev/go-ms-template/src/core/application/workers"
 	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/db"
-	"github.com/nanda03dev/go-ms-template/src/core/interface/app_module"
 	"github.com/nanda03dev/go-ms-template/src/core/interface/router"
 )
 

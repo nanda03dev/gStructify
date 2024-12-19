@@ -1,4 +1,4 @@
-package app_module
+package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
@@ -6,11 +6,12 @@ import (
 )
 
 func InitializeRoutes(fiberApp *fiber.App) {
-	modules := GetModule()
 	api := fiberApp.Group("/api")
 
+	AllHandlers := handlers.GetHandlers()
+
 	// TemplateEntity CRUD API'S
-	templateEntityHandler := modules.Handler.TemplateEntityHandler
+	templateEntityHandler := AllHandlers.TemplateEntityHandler
 	templateEntityV1Routes := api.Group("/v1/templateEntity")
 	templateEntityV1Routes.Post("/", templateEntityHandler.CreateTemplateEntity)
 	templateEntityV1Routes.Post("/filter", templateEntityHandler.FindTemplateEntityWithFilter)
