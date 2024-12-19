@@ -16,8 +16,6 @@ project/
 ├── main.go                              # Application entry point
 ├── go.mod
 ├── src/                                 # Source code folder
-│   ├── app_module/                      # Central module initialization
-│   │   └── app_module.go                # Initializes repositories and services
 │   ├── common/                          # Common utility functions
 │   │   ├── constants.go                 # UUID generator
 │   ├── core/                            # Contains all the layers
@@ -27,12 +25,14 @@ project/
 │   │   ├── application/
 │   │   │   └── service/
 │   │   │       ├── user_service.go      # Business logic for User
+│   │   │   └── workers/
+│   │   │       ├── worker.go            # Background worker
 │   │   ├── infrastructure/
 │   │   │   ├── db/
 │   │   │   │   ├── db.go                # General Database connection
 │   │   │   │   └── postgres-db.go       # PostgreSQL connection logic
 │   │   │   ├── entity/
-│   │   │   │   ├── user.go              # MongoDB User entity
+│   │   │   │   ├── user.go               # MongoDB User entity
 │   │   │   ├── repository/
 │   │   │   │   ├── user_repository_impl.go  # MongoDB UserRepository implementation
 │   │   ├── interfaces/

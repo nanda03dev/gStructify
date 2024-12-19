@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/nanda03dev/gStructify/clean-template/src/common"
+	"github.com/nanda03dev/go-ms-template/src/common"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -24,6 +24,7 @@ func (r *BaseRepository[T]) Create(entity *T) (*T, error) {
 	if err := r.db.Create(entity).Error; err != nil {
 		return nil, fmt.Errorf("failed to create record: %w", err)
 	}
+
 	return entity, nil
 }
 
@@ -37,24 +38,6 @@ func (r *BaseRepository[T]) FindById(id string) (*T, error) {
 		return nil, fmt.Errorf("failed to find record by ID: %w", err)
 	}
 	return &entity, nil
-}
-
-// getValidColumns retrieves valid columns for the specific table associated with the model
-func GetValidColumnsForTable[T any](db *gorm.DB) (map[string]bool, error) {
-	// Parse the model to get its schema
-	stmt := &gorm.Statement{DB: db}
-	err := stmt.Parse(new(T))
-	if err != nil {
-		return nil, err
-	}
-
-	// Retrieve column information only for the specific table
-	columns := make(map[string]bool)
-	for _, field := range stmt.Schema.Fields {
-		columns[field.DBName] = true
-	}
-
-	return columns, nil
 }
 
 // FindWithFilter retrieves records based on filters, sorting, limit, and skip for pagination
@@ -157,4 +140,22 @@ func (r *BaseRepository[T]) Delete(id string) error {
 		return fmt.Errorf("failed to delete record: %w", err)
 	}
 	return nil
+}
+
+// getValidColumns retrieves valid columns for the specific table associated with the model
+func GetValidColumnsForTable[T any](db *gorm.DB) (map[string]bool, error) {
+	// Parse the model to get its schema
+	stmt := &gorm.Statement{DB: db}
+	err := stmt.Parse(new(T))
+	if err != nil {
+		return nil, err
+	}
+
+	// Retrieve column information only for the specific table
+	columns := make(map[string]bool)
+	for _, field := range stmt.Schema.Fields {
+		columns[field.DBName] = true
+	}
+
+	return columns, nil
 }

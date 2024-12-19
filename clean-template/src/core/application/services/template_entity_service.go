@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/nanda03dev/go-ms-template/src/core/domain/aggregates"
+	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/repositories"
 	"github.com/nanda03dev/go-ms-template/src/core/interface/dto"
 )
 
@@ -17,9 +18,9 @@ type templateEntityService struct {
 	templateEntityRepo aggregates.TemplateEntityRepository
 }
 
-func NewTemplateEntityService(templateEntityRepo aggregates.TemplateEntityRepository) TemplateEntityService {
+func NewTemplateEntityService() TemplateEntityService {
 	return &templateEntityService{
-		templateEntityRepo: templateEntityRepo,
+		templateEntityRepo: repositories.NewTemplateEntityRepository(),
 	}
 }
 

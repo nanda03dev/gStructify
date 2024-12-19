@@ -32,3 +32,20 @@ type Condition struct {
 	Value    string             `json:"value"`
 	Operator ConditionOperation `json:"operator"`
 }
+
+type EVENT_TYPE string
+
+const (
+	ENTITY_CREATED EVENT_TYPE = "ENTITY_CREATED"
+	ENTITY_UPDATED EVENT_TYPE = "ENTITY_UPDATED"
+	ENTITY_DELETED EVENT_TYPE = "ENTITY_DELETED"
+)
+
+type ENTITY_NAME string
+
+type Event struct {
+	ID         string
+	EntityId   string
+	EntityName ENTITY_NAME
+	Type       EVENT_TYPE
+}

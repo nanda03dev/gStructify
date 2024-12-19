@@ -4,7 +4,9 @@ import (
 	"fmt"
 
 	"github.com/nanda03dev/go-ms-template/src/core/domain/aggregates"
+	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/db"
 	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/entity"
+	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/worker_channels"
 	"gorm.io/gorm"
 )
 
@@ -14,9 +16,10 @@ type TemplateEntityRepositoryImpl struct {
 }
 
 // NewTemplateEntityRepository initializes a new TemplateEntityRepositoryImpl instance.
-func NewTemplateEntityRepository(db *gorm.DB) aggregates.TemplateEntityRepository {
+func NewTemplateEntityRepository() aggregates.TemplateEntityRepository {
+	var databases = db.ConnectAll()
 	return &TemplateEntityRepositoryImpl{
-		BaseRepository: NewBaseRepository[entity.TemplateEntity](db), // Initialize BaseRepository with the entity.TemplateEntity type
+		BaseRepository: NewBaseRepository[entity.TemplateEntity](databases.DB.DB), // Initialize BaseRepository with the entity.TemplateEntity type
 	}
 }
 
@@ -24,6 +27,10 @@ func NewTemplateEntityRepository(db *gorm.DB) aggregates.TemplateEntityRepositor
 func (r *TemplateEntityRepositoryImpl) Create(templateEntity *aggregates.TemplateEntity) (*aggregates.TemplateEntity, error) {
 	entityTemplateEntity := r.toEntity(templateEntity)
 	createdTemplateEntity, err := r.BaseRepository.Create(entityTemplateEntity)
+
+	eventChannel := worker_channels.GetCRUDEventChannel()
+	eventChannel <- entityTemplateEntity.GetCreatedEvent()
+
 	return r.toDomain(createdTemplateEntity), err
 }
 
@@ -54,12 +61,22 @@ func (r *TemplateEntityRepositoryImpl) FindWithFilter(filterQueryDTO common.Filt
 func (r *TemplateEntityRepositoryImpl) Update(templateEntity *aggregates.TemplateEntity) (*aggregates.TemplateEntity, error) {
 	entityTemplateEntity := r.toEntity(templateEntity)
 	updatedTemplateEntity, err := r.BaseRepository.Update(entityTemplateEntity)
+
+	eventChannel := worker_channels.GetCRUDEventChannel()
+	eventChannel <- updatedTemplateEntity.GetUpdatedEvent()
+
 	return r.toDomain(updatedTemplateEntity), err
 }
 
 // Delete removes a templateEntity by its ID.
 func (r *TemplateEntityRepositoryImpl) Delete(id string) error {
-	return r.BaseRepository.Delete(id)
+	err := r.BaseRepository.Delete(id)
+	if err != nil {
+		entity := entity.TemplateEntity{ID: id}
+		eventChannel := worker_channels.GetCRUDEventChannel()
+		eventChannel <- entity.GetUpdatedEvent()
+	}
+	return err
 }
 
 // Helper function: Converts an aggregate TemplateEntity to an entity TemplateEntity
