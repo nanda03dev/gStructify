@@ -22,9 +22,9 @@ type templateEntityHandler struct {
 	templateEntityService services.TemplateEntityService
 }
 
-func NewTemplateEntityHandler() TemplateEntityHandler {
+func NewTemplateEntityHandler(templateEntityService services.TemplateEntityService) TemplateEntityHandler {
 	return &templateEntityHandler{
-		templateEntityService: services.NewTemplateEntityService(),
+		templateEntityService: templateEntityService,
 	}
 }
 

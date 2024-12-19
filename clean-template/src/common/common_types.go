@@ -4,53 +4,51 @@ package common
 type ConditionOperation string
 
 const (
-	ConditionEQ  ConditionOperation = "EQ"
-	ConditionIN  ConditionOperation = "IN"
-	ConditionGT  ConditionOperation = "GT"
-	ConditionLT  ConditionOperation = "LT"
-	ConditionGTE ConditionOperation = "GTE"
-	ConditionLTE ConditionOperation = "LTE"
-	ConditionNQ  ConditionOperation = "NQ"
+	CONDITION_EQ  ConditionOperation = "EQ"
+	CONDITION_IN  ConditionOperation = "IN"
+	CONDITION_GT  ConditionOperation = "GT"
+	CONDITION_LT  ConditionOperation = "LT"
+	CONDITION_GTE ConditionOperation = "GTE"
+	CONDITION_LTE ConditionOperation = "LTE"
+	CONDITION_NQ  ConditionOperation = "NQ"
 )
 
 type SortDirection string
 
 const (
-	SortASC  SortDirection = "ASC"
-	SortDESC SortDirection = "DESC"
+	SORT_ASC  SortDirection = "ASC"
+	SORT_DESC SortDirection = "DESC"
 )
 
-// Order struct to hold sorting information
 type Sort struct {
 	Key  string        `json:"key"`
 	Type SortDirection `json:"type"`
 }
 
-// Filter defines the filter criteria.
 type Condition struct {
 	Key      string             `json:"key"`
 	Value    string             `json:"value"`
 	Operator ConditionOperation `json:"operator"`
 }
 
-type EVENT_TYPE string
+type EventType string
 
 const (
-	ENTITY_CREATED EVENT_TYPE = "ENTITY_CREATED"
-	ENTITY_UPDATED EVENT_TYPE = "ENTITY_UPDATED"
-	ENTITY_DELETED EVENT_TYPE = "ENTITY_DELETED"
+	ENTITY_CREATED EventType = "ENTITY_CREATED"
+	ENTITY_UPDATED EventType = "ENTITY_UPDATED"
+	ENTITY_DELETED EventType = "ENTITY_DELETED"
 )
 
-type ENTITY_NAME string
+type EntityName string
 
-type EVENT_CONFIG struct {
+type EntityConfig struct {
 	EventStore bool
 }
 
 type Event struct {
 	ID         string
 	EntityId   string
-	EntityName ENTITY_NAME
-	Type       EVENT_TYPE
-	Config     EVENT_CONFIG
+	EntityName EntityName
+	Type       EventType
+	Config     EntityConfig
 }

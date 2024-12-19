@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
-const EventEntityName common.ENTITY_NAME = "Event"
+const EventEntityName common.EntityName = "Event"
 
 type Event struct {
 	gorm.Model
@@ -19,6 +19,6 @@ type Event struct {
 	UpdatedAt  time.Time
 }
 
-func (e *Event) GetEntityName() common.ENTITY_NAME {
+func (e *Event) GetEntityName() common.EntityName {
 	return EventEntityName
 }

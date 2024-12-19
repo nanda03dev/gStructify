@@ -10,23 +10,17 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/nanda03dev/go-ms-template/src/core/application/workers"
 	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/db"
+	"github.com/nanda03dev/go-ms-template/src/core/interface/app_module"
 	"github.com/nanda03dev/go-ms-template/src/core/interface/router"
 )
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	var databases = db.ConnectAll()
+	fiberApp := fiber.New()
 
-	defer databases.DisconnectAll()
-
-	app := fiber.New()
-
-	router.InitializeRoutes(app)
-
-	// Initialize application modules
-	log.Println("Starting workers...")
-	workers.InitializeWorkers(ctx)
+	app_module.ConnectDatabase()
+	app_module.StartAppService(ctx, fiberApp)
 
 	// Handle graceful shutdown
 	go func() {
@@ -41,12 +35,13 @@ func main() {
 
 		// Gracefully shut down the Fiber app
 		log.Println("Shutting down Fiber app...")
-		app.Shutdown()
+		fiberApp.Shutdown()
+		app_module.DisconnectDatabase()
 	}()
 
 	// Start listening for HTTP requests
 	log.Println("Starting server on :3000")
-	if err := app.Listen(":3000"); err != nil {
+	if err := fiberApp.Listen(":3000"); err != nil {
 		log.Fatalf("Error starting server: %v", err)
 	}
 

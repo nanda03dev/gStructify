@@ -67,19 +67,19 @@ func (r *BaseRepository[T]) FindWithFilter(filterQueryDTO common.FilterQueryDTO)
 
 		var condition string
 		switch filter.Operator {
-		case common.ConditionEQ:
+		case common.CONDITION_EQ:
 			condition = fmt.Sprintf("%s = ?", filter.Key)
-		case common.ConditionIN:
+		case common.CONDITION_IN:
 			condition = fmt.Sprintf("%s IN (?)", filter.Key)
-		case common.ConditionGT:
+		case common.CONDITION_GT:
 			condition = fmt.Sprintf("%s > ?", filter.Key)
-		case common.ConditionLT:
+		case common.CONDITION_LT:
 			condition = fmt.Sprintf("%s < ?", filter.Key)
-		case common.ConditionGTE:
+		case common.CONDITION_GTE:
 			condition = fmt.Sprintf("%s >= ?", filter.Key)
-		case common.ConditionLTE:
+		case common.CONDITION_LTE:
 			condition = fmt.Sprintf("%s <= ?", filter.Key)
-		case common.ConditionNQ:
+		case common.CONDITION_NQ:
 			condition = fmt.Sprintf("%s != ?", filter.Key)
 		default:
 			condition = fmt.Sprintf("%s = ?", filter.Key)
@@ -91,12 +91,12 @@ func (r *BaseRepository[T]) FindWithFilter(filterQueryDTO common.FilterQueryDTO)
 	// Apply sorting
 	for _, order := range filterQueryDTO.Sorts {
 		// Check order type (ASC or DESC)
-		if order.Type == common.SortASC {
+		if order.Type == common.SORT_ASC {
 			query = query.Order(clause.OrderByColumn{
 				Column: clause.Column{Name: order.Key},
 				Desc:   false,
 			})
-		} else if order.Type == common.SortDESC {
+		} else if order.Type == common.SORT_DESC {
 			query = query.Order(clause.OrderByColumn{
 				Column: clause.Column{Name: order.Key},
 				Desc:   true,

@@ -18,9 +18,9 @@ type templateEntityService struct {
 	templateEntityRepo aggregates.TemplateEntityRepository
 }
 
-func NewTemplateEntityService() TemplateEntityService {
+func NewTemplateEntityService(templateEntityRepo aggregates.TemplateEntityRepository) TemplateEntityService {
 	return &templateEntityService{
-		templateEntityRepo: repositories.NewTemplateEntityRepository(),
+		templateEntityRepo: templateEntityRepo,
 	}
 }
 

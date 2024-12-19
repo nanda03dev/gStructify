@@ -1,17 +1,16 @@
-package router
+package app_module
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/nanda03dev/go-ms-template/src/app_module"
 	"github.com/nanda03dev/go-ms-template/src/core/interface/handlers"
 )
 
-func InitializeRoutes(app *fiber.App) {
-
-	api := app.Group("/api")
+func InitializeRoutes(fiberApp *fiber.App) {
+	modules := GetModule()
+	api := fiberApp.Group("/api")
 
 	// TemplateEntity CRUD API'S
-	templateEntityHandler := handlers.NewTemplateEntityHandler()
+	templateEntityHandler := modules.Handler.TemplateEntityHandler
 	templateEntityV1Routes := api.Group("/v1/templateEntity")
 	templateEntityV1Routes.Post("/", templateEntityHandler.CreateTemplateEntity)
 	templateEntityV1Routes.Post("/filter", templateEntityHandler.FindTemplateEntityWithFilter)

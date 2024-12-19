@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-const TemplateEntityEntityName common.ENTITY_NAME = "TemplateEntity"
+const TemplateEntityEntityName common.EntityName = "TemplateEntity"
 
 type TemplateEntity struct {
 	gorm.Model
@@ -17,7 +17,7 @@ type TemplateEntity struct {
 	UpdatedAt time.Time
 }
 
-func (e *TemplateEntity) GetEntityName() common.ENTITY_NAME {
+func (e *TemplateEntity) GetEntityName() common.EntityName {
 	return TemplateEntityEntityName
 }
 
@@ -31,13 +31,13 @@ func (e *TemplateEntity) GetDeletedEvent() common.Event {
 	return e.GetEvent(common.ENTITY_CREATED)
 }
 
-func (e *TemplateEntity) GetEvent(operationType common.EVENT_TYPE) common.Event {
+func (e *TemplateEntity) GetEvent(operationType common.EventType) common.Event {
 	return common.Event{
 		ID:         helper.Generate16DigitUUID(),
 		EntityId:   e.ID,
 		EntityName: e.GetEntityName(),
 		Type:       operationType,
-		Config: common.EVENT_CONFIG{
+		Config: common.EntityConfig{
 			EventStore: true,
 		},
 	}
