@@ -41,7 +41,7 @@ func (r *BaseRepository[T]) FindById(id string) (*T, error) {
 }
 
 // FindWithFilter retrieves records based on filters, sorting, limit, and skip for pagination
-func (r *BaseRepository[T]) FindWithFilter(filterQueryDTO common.FilterQueryDTO) ([]*T, error) {
+func (r *BaseRepository[T]) FindWithFilter(filterQuery common.FilterQuery) ([]*T, error) {
 	var results []*T
 
 	// Fetch valid columns for the table corresponding to model T
@@ -54,12 +54,12 @@ func (r *BaseRepository[T]) FindWithFilter(filterQueryDTO common.FilterQueryDTO)
 	query := r.db.Model(new(T))
 	// Determine whether to use AND or OR
 	operationFunc := query.Where // Default to AND
-	if strings.ToUpper(filterQueryDTO.Logic) == "OR" {
+	if strings.ToUpper(filterQuery.Logic) == "OR" {
 		operationFunc = query.Or
 	}
 
 	// Loop through filters and dynamically apply conditions
-	for _, filter := range filterQueryDTO.Conditions {
+	for _, filter := range filterQuery.Conditions {
 
 		if !validColumns[filter.Key] {
 			return nil, fmt.Errorf("invalid column name: %s", filter.Key)
@@ -89,7 +89,7 @@ func (r *BaseRepository[T]) FindWithFilter(filterQueryDTO common.FilterQueryDTO)
 	}
 
 	// Apply sorting
-	for _, order := range filterQueryDTO.Sorts {
+	for _, order := range filterQuery.Sorts {
 		// Check order type (ASC or DESC)
 		if order.Type == common.SORT_ASC {
 			query = query.Order(clause.OrderByColumn{
@@ -107,14 +107,14 @@ func (r *BaseRepository[T]) FindWithFilter(filterQueryDTO common.FilterQueryDTO)
 	}
 
 	// Apply pagination (limit and skip) with default values if not provided
-	if filterQueryDTO.MaxResults > 0 {
-		query = query.Limit(int(filterQueryDTO.MaxResults))
+	if filterQuery.MaxResults > 0 {
+		query = query.Limit(int(filterQuery.MaxResults))
 	} else {
 		// Default to 10 if limit is not provided
 		query = query.Limit(10)
 	}
-	if filterQueryDTO.Offset > 0 {
-		query = query.Offset(int(filterQueryDTO.Offset))
+	if filterQuery.Offset > 0 {
+		query = query.Offset(int(filterQuery.Offset))
 	}
 
 	// Execute the query

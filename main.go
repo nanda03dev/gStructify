@@ -293,7 +293,7 @@ func ToUpdateRepositoriesFile(filePath, entityName string) error {
 	content := string(data)
 	entityNameUpperFirst := ToUpperFirst(entityName)
 
-	lineToAddInRepoType := fmt.Sprintf("%sRepository aggregates.%sRepository", entityNameUpperFirst, entityNameUpperFirst)
+	lineToAddInRepoType := fmt.Sprintf("%sRepository %sRepository", entityNameUpperFirst, entityNameUpperFirst)
 	repoStartKeyword := "type Repositories struct {"
 	endKeyword := "}"
 	content = AddNewLineToStart(lineToAddInRepoType, content, repoStartKeyword, endKeyword, "", "")
@@ -320,7 +320,7 @@ func ToUpdateServicesFile(filePath, entityName string) error {
 	serviceStartKeyword := "type Services struct {"
 	content = AddNewLineToStart(lineToAddInServiceType, content, serviceStartKeyword, endKeyword, "", "")
 
-	lineToAddInServices := fmt.Sprintf("%sService: New%sService(AllRepositories.%sRepository)", entityNameUpperFirst, entityNameUpperFirst, entityNameUpperFirst)
+	lineToAddInServices := fmt.Sprintf("%sService: New%sService()", entityNameUpperFirst, entityNameUpperFirst)
 	lineToAddInServicesStartKeyword := "AllServices = &Services{"
 	content = AddNewLineToStart(lineToAddInServices, content, lineToAddInServicesStartKeyword, endKeyword, "", ",")
 

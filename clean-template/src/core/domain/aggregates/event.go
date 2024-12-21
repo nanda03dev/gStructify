@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/nanda03dev/go-ms-template/src/common"
-	"github.com/nanda03dev/go-ms-template/src/core/interface/dto"
 	"github.com/nanda03dev/go-ms-template/src/helper"
 )
 
@@ -38,7 +37,7 @@ func UpdateEvent(id string, updateEventDTO common.Event) *Event {
 type EventRepository interface {
 	Create(event *Event) (*Event, error)
 	FindById(id string) (*Event, error)
-	FindWithFilter(filterQueryDTO common.FilterQueryDTO) ([]*Event, error)
+	FindWithFilter(filterQuery common.FilterQuery) ([]*Event, error)
 	Update(event *Event) (*Event, error)
 	Delete(id string) error
 }

@@ -11,9 +11,10 @@ import (
 
 // StartCRUDWorker listens to the CRUD channel and processes data
 func StartCRUDEventWorker(ctx context.Context) {
+	crudEventChannel := worker_channels.GetCRUDEventChannel()
 	for {
 		select {
-		case event := <-worker_channels.GetCRUDEventChannel(): // Listen to the channel
+		case event := <-crudEventChannel: // Listen to the channel
 			log.Println("Processing data:", event)
 			// Simulate processing, e.g., saving to database
 			if event.Config.EventStore {

@@ -26,11 +26,3 @@ func UpdateTemplateEntity(id string, updateTemplateEntityDTO dto.UpdateTemplateE
 		// add other fields
 	}
 }
-
-type TemplateEntityRepository interface {
-	Create(templateEntity *TemplateEntity) (*TemplateEntity, error)
-	FindById(id string) (*TemplateEntity, error)
-	FindWithFilter(filterQueryDTO common.FilterQueryDTO) ([]*TemplateEntity, error)
-	Update(templateEntity *TemplateEntity) (*TemplateEntity, error)
-	Delete(id string) error
-}

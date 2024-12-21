@@ -2,12 +2,11 @@ package repositories
 
 import (
 	"sync"
-
-	"github.com/nanda03dev/go-ms-template/src/core/domain/aggregates"
 )
 
 type Repositories struct {
-	TemplateEntityRepository aggregates.TemplateEntityRepository
+	EventRepository          EventRepository
+	TemplateEntityRepository TemplateEntityRepository
 }
 
 var (
@@ -18,6 +17,7 @@ var (
 func GetRepositories() *Repositories {
 	once.Do(func() {
 		AllRepositories = &Repositories{
+			EventRepository:          NewEventRepository(),
 			TemplateEntityRepository: NewTemplateEntityRepository(),
 		}
 	})

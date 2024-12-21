@@ -4,24 +4,24 @@ import (
 	"github.com/nanda03dev/go-ms-template/src/common"
 	"github.com/nanda03dev/go-ms-template/src/core/domain/aggregates"
 	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/repositories"
-	"github.com/nanda03dev/go-ms-template/src/core/interface/dto"
 )
 
 type EventService interface {
 	Create(createEventDTO common.Event) (*aggregates.Event, error)
 	GetById(id string) (*aggregates.Event, error)
-	FindWithFilter(filterQueryDTO common.FilterQueryDTO) ([]*aggregates.Event, error)
+	FindWithFilter(filterQuery common.FilterQuery) ([]*aggregates.Event, error)
 	Update(id string, updateEventDTO common.Event) (*aggregates.Event, error)
 	Delete(id string) error
 }
 
 type eventService struct {
-	eventRepo aggregates.EventRepository
+	eventRepo repositories.EventRepository
 }
 
 func NewEventService() EventService {
+	var AllRepositories = repositories.GetRepositories()
 	return &eventService{
-		eventRepo: repositories.NewEventRepository(),
+		eventRepo: AllRepositories.EventRepository,
 	}
 }
 
@@ -34,8 +34,8 @@ func (s *eventService) GetById(id string) (*aggregates.Event, error) {
 	return s.eventRepo.FindById(id)
 }
 
-func (s *eventService) FindWithFilter(filterQueryDTO common.FilterQueryDTO) ([]*aggregates.Event, error) {
-	return s.eventRepo.FindWithFilter(filterQueryDTO)
+func (s *eventService) FindWithFilter(filterQuery common.FilterQuery) ([]*aggregates.Event, error) {
+	return s.eventRepo.FindWithFilter(filterQuery)
 }
 
 func (s *eventService) Update(id string, updateEventDTO common.Event) (*aggregates.Event, error) {

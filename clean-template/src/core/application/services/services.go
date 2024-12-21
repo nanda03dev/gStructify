@@ -17,9 +17,8 @@ var (
 
 func GetServices() *Services {
 	once.Do(func() {
-		var AllRepositories = repositories.GetRepositories()
 		AllServices = &Services{
-			TemplateEntityService: NewTemplateEntityService(AllRepositories.TemplateEntityRepository),
+			TemplateEntityService: NewTemplateEntityService(),
 		}
 	})
 	return AllServices

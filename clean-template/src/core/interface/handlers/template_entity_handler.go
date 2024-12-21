@@ -56,7 +56,7 @@ func (c *templateEntityHandler) GetTemplateEntityByID(ctx *fiber.Ctx) error {
 }
 
 func (c *templateEntityHandler) FindTemplateEntityWithFilter(ctx *fiber.Ctx) error {
-	var filterDTO common.FilterQueryDTO
+	var filterDTO common.FilterQuery
 
 	if err := ctx.BodyParser(&filterDTO); err != nil {
 		return ctx.Status(http.StatusBadRequest).JSON(ErrorResponse(common.InvalidRequestError))

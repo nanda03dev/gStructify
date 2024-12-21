@@ -8,7 +8,7 @@ import (
 	"syscall"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/nanda03dev/go-ms-template/src/app_module"
+	"github.com/nanda03dev/go-ms-template/src/bootstrap"
 	"github.com/nanda03dev/go-ms-template/src/core/application/workers"
 	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/db"
 	"github.com/nanda03dev/go-ms-template/src/core/interface/router"
@@ -19,8 +19,10 @@ func main() {
 
 	fiberApp := fiber.New()
 
-	app_module.ConnectDatabase()
-	app_module.StartAppService(ctx, fiberApp)
+	applicationManager := bootstrap.NewApplicationManager(ctx, fiberApp)
+
+	applicationManager.ConnectDatabase()
+	applicationManager.Run()
 
 	// Handle graceful shutdown
 	go func() {
@@ -36,7 +38,7 @@ func main() {
 		// Gracefully shut down the Fiber app
 		log.Println("Shutting down Fiber app...")
 		fiberApp.Shutdown()
-		app_module.DisconnectDatabase()
+		applicationManager.DisconnectDatabase()
 	}()
 
 	// Start listening for HTTP requests
