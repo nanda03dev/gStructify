@@ -1,24 +1,28 @@
 package services
 
 import (
+	"github.com/nanda03dev/go-ms-template/src/common"
 	"github.com/nanda03dev/go-ms-template/src/core/domain/aggregates"
+	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/repositories"
 	"github.com/nanda03dev/go-ms-template/src/core/interface/dto"
 )
 
 type TemplateEntityService interface {
 	Create(createTemplateEntityDTO dto.CreateTemplateEntityDTO) (*aggregates.TemplateEntity, error)
 	GetById(id string) (*aggregates.TemplateEntity, error)
+	FindWithFilter(filterQuery common.FilterQuery) ([]*aggregates.TemplateEntity, error)
 	Update(id string, updateTemplateEntityDTO dto.UpdateTemplateEntityDTO) (*aggregates.TemplateEntity, error)
 	Delete(id string) error
 }
 
 type templateEntityService struct {
-	templateEntityRepo aggregates.TemplateEntityRepository
+	templateEntityRepo repositories.TemplateEntityRepository
 }
 
-func NewTemplateEntityService(templateEntityRepo aggregates.TemplateEntityRepository) TemplateEntityService {
+func NewTemplateEntityService() TemplateEntityService {
+	var AllRepositories = repositories.GetRepositories()
 	return &templateEntityService{
-		templateEntityRepo: templateEntityRepo,
+		templateEntityRepo: AllRepositories.TemplateEntityRepository,
 	}
 }
 
@@ -29,6 +33,10 @@ func (s *templateEntityService) Create(createTemplateEntityDTO dto.CreateTemplat
 
 func (s *templateEntityService) GetById(id string) (*aggregates.TemplateEntity, error) {
 	return s.templateEntityRepo.FindById(id)
+}
+
+func (s *templateEntityService) FindWithFilter(filterQuery common.FilterQuery) ([]*aggregates.TemplateEntity, error) {
+	return s.templateEntityRepo.FindWithFilter(filterQuery)
 }
 
 func (s *templateEntityService) Update(id string, updateTemplateEntityDTO dto.UpdateTemplateEntityDTO) (*aggregates.TemplateEntity, error) {

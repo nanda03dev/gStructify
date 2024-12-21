@@ -22,10 +22,18 @@ func ConnectPostgresDB(uri string) (*PostgresDB, error) {
 		return nil, err
 	}
 
-	// Run migrations before starting the application
+	// Run raw migrations before starting the application
 	if err := RunRawMigration(postgresDB.DB); err != nil {
-		log.Fatalf("Could not run migrations: %v", err)
+		log.Fatalf("Could not run raw migrations: %v", err)
 	}
+
+	// Run model migrations before starting the application
+	if err := RunModelMigration(postgresDB.DB); err != nil {
+		log.Fatalf("Could not run model migrations: %v", err)
+	}
+
+	// Set connection configs
+	postgresDB.setConfigs()
 
 	return postgresDB, nil
 }
@@ -62,6 +70,19 @@ func (p *PostgresDB) Health() (string, bool) {
 	} else {
 		return "PostgreSQL connection is healthy!", true
 	}
+}
+
+func (p *PostgresDB) setConfigs() {
+	// Get the generic database connection object `*sql.DB` to configure it
+	sqlDB, err := p.DB.DB()
+	if err != nil {
+		log.Fatalf("failed to get sql.DB: %v", err)
+	}
+
+	// Set database connection pool parameters
+	sqlDB.SetMaxIdleConns(10)               // Maximum number of idle connections
+	sqlDB.SetMaxOpenConns(100)              // Maximum number of open connections
+	sqlDB.SetConnMaxLifetime(1 * time.Hour) // Maximum time a connection can be reused
 }
 
 func RunModelMigration(db *gorm.DB) error {
