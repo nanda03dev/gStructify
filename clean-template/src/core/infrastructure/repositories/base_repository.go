@@ -111,7 +111,7 @@ func (r *BaseRepository[T]) FindWithFilter(filterQuery common.FilterQuery) ([]*T
 		query = query.Limit(int(filterQuery.MaxResults))
 	} else {
 		// Default to 10 if limit is not provided
-		query = query.Limit(10)
+		query = query.Limit(1000)
 	}
 	if filterQuery.Offset > 0 {
 		query = query.Offset(int(filterQuery.Offset))

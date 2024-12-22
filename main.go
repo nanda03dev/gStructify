@@ -166,7 +166,7 @@ func modifyFile(filePath, entityName string) error {
 		return ToUpdateCommonResponseMessage(filePath, entityName)
 	}
 
-	if strings.Contains(filePath, "entity.go") {
+	if strings.Contains(filePath, "entities.go") {
 		return ToUpdateEntityFile(filePath, entityName)
 	}
 
