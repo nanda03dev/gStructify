@@ -40,6 +40,26 @@ func (r *BaseRepository[T]) FindById(id string) (*T, error) {
 	return &entity, nil
 }
 
+// FindById retrieves a record by its ID.
+func (r *BaseRepository[T]) FindByIdWithRelation(id string, preloadRelations []string) (*T, error) {
+	var entity T
+	query := r.db.Model(&entity)
+
+	// Loop through the preloadRelations slice and apply Preload for each relation dynamically
+	for _, relation := range preloadRelations {
+		query = query.Preload(relation)
+	}
+
+	// Now execute the First query to fetch the entity with preloaded relations
+	if err := query.First(&entity, "id = ?", id).Error; err != nil {
+		// Handle error (e.g., record not found, or other DB errors)
+		return nil, fmt.Errorf("failed to fetch entity with relations: %w", err)
+	}
+
+	// Return the entity with preloaded relations
+	return &entity, nil
+}
+
 // FindWithFilter retrieves records based on filters, sorting, limit, and skip for pagination
 func (r *BaseRepository[T]) FindWithFilter(filterQuery common.FilterQuery) ([]*T, error) {
 	var results []*T

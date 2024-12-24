@@ -36,10 +36,14 @@ func (r *templateEntityRepository) Create(templateEntity *aggregates.TemplateEnt
 	entityTemplateEntity := r.toEntity(templateEntity)
 	createdTemplateEntity, err := r.BaseRepository.Create(entityTemplateEntity)
 
+	if err != nil {
+		return nil, err
+	}
+
 	eventChannel := worker_channels.GetCRUDEventChannel()
 	eventChannel <- entityTemplateEntity.GetCreatedEvent()
 
-	return r.toDomain(createdTemplateEntity), err
+	return r.toDomain(createdTemplateEntity), nil
 }
 
 // FindById retrieves a templateEntity by its ID.
@@ -69,6 +73,10 @@ func (r *templateEntityRepository) FindWithFilter(filterQuery common.FilterQuery
 func (r *templateEntityRepository) Update(templateEntity *aggregates.TemplateEntity) (*aggregates.TemplateEntity, error) {
 	entityTemplateEntity := r.toEntity(templateEntity)
 	updatedTemplateEntity, err := r.BaseRepository.Update(entityTemplateEntity)
+
+	if err != nil {
+		return nil, err
+	}
 
 	eventChannel := worker_channels.GetCRUDEventChannel()
 	eventChannel <- updatedTemplateEntity.GetUpdatedEvent()
