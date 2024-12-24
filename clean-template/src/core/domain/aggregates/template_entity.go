@@ -3,7 +3,6 @@ package aggregates
 import (
 	"time"
 
-	"github.com/nanda03dev/go-ms-template/src/common"
 	"github.com/nanda03dev/go-ms-template/src/core/interface/dto"
 	"github.com/nanda03dev/go-ms-template/src/helper"
 )
@@ -20,9 +19,10 @@ func NewTemplateEntity(createTemplateEntityDTO dto.CreateTemplateEntityDTO) *Tem
 		// add other fields
 	}
 }
+
 func UpdateTemplateEntity(id string, updateTemplateEntityDTO dto.UpdateTemplateEntityDTO) *TemplateEntity {
 	return &TemplateEntity{
-		ID: updateTemplateEntityDTO.ID,
+		ID: id,
 		// add other fields
 	}
 }

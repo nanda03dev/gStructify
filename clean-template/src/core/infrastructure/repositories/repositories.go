@@ -10,16 +10,16 @@ type Repositories struct {
 }
 
 var (
-	once            sync.Once
-	AllRepositories *Repositories
+	repositoriesOnce sync.Once
+	allRepositories  *Repositories
 )
 
 func GetRepositories() *Repositories {
-	once.Do(func() {
-		AllRepositories = &Repositories{
+	repositoriesOnce.Do(func() {
+		allRepositories = &Repositories{
 			EventRepository:          NewEventRepository(),
 			TemplateEntityRepository: NewTemplateEntityRepository(),
 		}
 	})
-	return AllRepositories
+	return allRepositories
 }

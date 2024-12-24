@@ -18,10 +18,9 @@ type eventService struct {
 	eventRepo repositories.EventRepository
 }
 
-func NewEventService() EventService {
-	var AllRepositories = repositories.GetRepositories()
+func NewEventService(eventRepository repositories.EventRepository) EventService {
 	return &eventService{
-		eventRepo: AllRepositories.EventRepository,
+		eventRepo: eventRepository,
 	}
 }
 

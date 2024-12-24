@@ -11,16 +11,16 @@ type Handlers struct {
 }
 
 var (
-	once        sync.Once
-	AllHandlers *Handlers
+	HandlersOnce sync.Once
+	allHandlers  *Handlers
 )
 
 func GetHandlers() *Handlers {
-	once.Do(func() {
+	HandlersOnce.Do(func() {
 		var AllServices = services.GetServices()
-		AllHandlers = &Handlers{
+		allHandlers = &Handlers{
 			TemplateEntityHandler: NewTemplateEntityHandler(AllServices.TemplateEntityService),
 		}
 	})
-	return AllHandlers
+	return allHandlers
 }

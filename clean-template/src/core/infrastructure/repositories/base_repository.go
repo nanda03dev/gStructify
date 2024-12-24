@@ -28,6 +28,15 @@ func (r *BaseRepository[T]) Create(entity *T) (*T, error) {
 	return entity, nil
 }
 
+// Bulk inserts a new record into the database.
+func (r *BaseRepository[T]) BulkCreate(entities []*T) ([]*T, error) {
+	if err := r.db.Create(entities).Error; err != nil {
+		return nil, fmt.Errorf("failed to create record: %w", err)
+	}
+
+	return entities, nil
+}
+
 // FindById retrieves a record by its ID.
 func (r *BaseRepository[T]) FindById(id string) (*T, error) {
 	var entity T

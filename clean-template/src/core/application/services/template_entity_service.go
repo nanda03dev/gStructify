@@ -19,10 +19,9 @@ type templateEntityService struct {
 	templateEntityRepo repositories.TemplateEntityRepository
 }
 
-func NewTemplateEntityService() TemplateEntityService {
-	var AllRepositories = repositories.GetRepositories()
+func NewTemplateEntityService(templateEntityRepo repositories.TemplateEntityRepository) TemplateEntityService {
 	return &templateEntityService{
-		templateEntityRepo: AllRepositories.TemplateEntityRepository,
+		templateEntityRepo: templateEntityRepo,
 	}
 }
 
