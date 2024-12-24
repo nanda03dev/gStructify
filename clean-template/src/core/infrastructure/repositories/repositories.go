@@ -2,6 +2,8 @@ package repositories
 
 import (
 	"sync"
+
+	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/db"
 )
 
 type Repositories struct {
@@ -15,10 +17,11 @@ var (
 )
 
 func GetRepositories() *Repositories {
+	var databases = db.ConnectAll()
 	repositoriesOnce.Do(func() {
 		allRepositories = &Repositories{
-			EventRepository:          NewEventRepository(),
-			TemplateEntityRepository: NewTemplateEntityRepository(),
+			EventRepository:          NewEventRepository(databases),
+			TemplateEntityRepository: NewTemplateEntityRepository(databases),
 		}
 	})
 	return allRepositories

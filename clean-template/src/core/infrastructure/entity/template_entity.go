@@ -17,6 +17,15 @@ type TemplateEntity struct {
 	UpdatedAt time.Time
 }
 
+// Helper function: Converts an aggregate TemplateEntity to an entity TemplateEntity
+func NewTemplateEntity(templateEntity *aggregates.TemplateEntity) *TemplateEntity {
+	return &TemplateEntity{
+		ID:        templateEntity.ID,
+		CreatedAt: templateEntity.CreatedAt,
+		UpdatedAt: templateEntity.UpdatedAt,
+	}
+}
+
 func (e *TemplateEntity) GetEntityName() common.EntityName {
 	return TemplateEntityEntityName
 }
@@ -40,5 +49,14 @@ func (e *TemplateEntity) GetEvent(operationType common.EventType) common.Event {
 		Config: common.EntityConfig{
 			EventStore: true,
 		},
+	}
+}
+
+// Helper function: Converts an entity TemplateEntity to an aggregate TemplateEntity
+func (e *TemplateEntity) ToDomain() *aggregates.TemplateEntity {
+	return &aggregates.TemplateEntity{
+		ID:        e.ID,
+		CreatedAt: e.CreatedAt,
+		UpdatedAt: e.UpdatedAt,
 	}
 }
