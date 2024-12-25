@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -98,9 +99,20 @@ func replaceEntityName(content, entityName string) string {
 }
 
 func replaceFileName(pathName string, entityName string) string {
-	pathName = strings.ReplaceAll(pathName, "template_entity", entityName)
+	entity_name := CamelToSnake(entityName)
+	pathName = strings.ReplaceAll(pathName, "template_entity", entity_name)
 	pathName = strings.ReplaceAll(pathName, "EPOCH", GetEpoch())
 	return pathName
+}
+
+// CamelToSnake converts a CamelCase string to snake_case
+func CamelToSnake(input string) string {
+	// Insert an underscore before any uppercase letter followed by a lowercase letter or a digit
+	re := regexp.MustCompile(`([a-z0-9])([A-Z])`)
+	snake := re.ReplaceAllString(input, `${1}_${2}`)
+
+	// Convert the entire string to lowercase
+	return strings.ToLower(snake)
 }
 
 // Write file content in  given file path

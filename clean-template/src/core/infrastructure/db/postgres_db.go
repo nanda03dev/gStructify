@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/entity"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -22,14 +23,13 @@ func ConnectPostgresDB(uri string) (*PostgresDB, error) {
 		return nil, err
 	}
 
-	// Run raw migrations before starting the application
-	if err := RunRawMigration(postgresDB.DB); err != nil {
-		log.Fatalf("Could not run raw migrations: %v", err)
-	}
-
 	// Run model migrations before starting the application
 	if err := RunModelMigration(postgresDB.DB); err != nil {
 		log.Fatalf("Could not run model migrations: %v", err)
+	}
+	// Run raw migrations before starting the application
+	if err := RunRawMigration(postgresDB.DB); err != nil {
+		log.Fatalf("Could not run raw migrations: %v", err)
 	}
 
 	// Set connection configs
