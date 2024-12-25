@@ -12,6 +12,7 @@ import (
 
 type TemplateEntityRepository interface {
 	Create(templateEntity *aggregates.TemplateEntity) (*aggregates.TemplateEntity, error)
+	BulkCreate(templateEntity []*aggregates.TemplateEntity) ([]*aggregates.TemplateEntity, error)
 	FindById(id string) (*aggregates.TemplateEntity, error)
 	FindWithFilter(filterQuery common.FilterQuery) ([]*aggregates.TemplateEntity, error)
 	Update(templateEntity *aggregates.TemplateEntity) (*aggregates.TemplateEntity, error)
@@ -43,6 +44,29 @@ func (r *templateEntityRepository) Create(templateEntity *aggregates.TemplateEnt
 	eventChannel <- entityTemplateEntity.GetCreatedEvent()
 
 	return createdTemplateEntity.ToDomain(), nil
+}
+
+// Bulk inserts a new templateEntity.
+func (r *templateEntityRepository) BulkCreate(items []*aggregates.TemplateEntity) ([]*aggregates.TemplateEntity, error) {
+
+	var entityTemplateEntitys = make([]*entity.TemplateEntity, 0, len(items))
+
+	for _, each := range items {
+		entityTemplateEntitys = append(entityTemplateEntitys, entity.NewTemplateEntity(each))
+	}
+
+	createdTemplateEntitys, err := r.BaseRepository.BulkCreate(entityTemplateEntitys)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, each := range createdTemplateEntitys {
+		eventChannel := worker_channels.GetCRUDEventChannel()
+		eventChannel <- each.GetCreatedEvent()
+
+	}
+	return items, nil
 }
 
 // FindById retrieves a templateEntity by its ID.

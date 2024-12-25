@@ -13,14 +13,14 @@ type TemplateEntity struct {
 	UpdatedAt time.Time
 }
 
-func NewTemplateEntity(createTemplateEntityDTO dto.CreateTemplateEntityDTO) *TemplateEntity {
+func NewTemplateEntity(createDTO dto.CreateTemplateEntityDTO) *TemplateEntity {
 	return &TemplateEntity{
 		ID: helper.Generate16DigitUUID(), // Generate unique ID (UUID or similar)
 		// add other fields
 	}
 }
 
-func UpdateTemplateEntity(id string, updateTemplateEntityDTO dto.UpdateTemplateEntityDTO) *TemplateEntity {
+func UpdateTemplateEntity(id string, updateDTO dto.UpdateTemplateEntityDTO) *TemplateEntity {
 	return &TemplateEntity{
 		ID: id,
 		// add other fields

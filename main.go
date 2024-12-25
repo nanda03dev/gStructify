@@ -320,7 +320,7 @@ func ToUpdateServicesFile(filePath, entityName string) error {
 	serviceStartKeyword := "type Services struct {"
 	content = AddNewLineToStart(lineToAddInServiceType, content, serviceStartKeyword, endKeyword, "", "")
 
-	lineToAddInServices := fmt.Sprintf("%sService: New%sService()", entityNameUpperFirst, entityNameUpperFirst)
+	lineToAddInServices := fmt.Sprintf("%sService: New%sService(AllRepositories.%sRepository)", entityNameUpperFirst, entityNameUpperFirst, entityNameUpperFirst)
 	lineToAddInServicesStartKeyword := "AllServices = &Services{"
 	content = AddNewLineToStart(lineToAddInServices, content, lineToAddInServicesStartKeyword, endKeyword, "", ",")
 
