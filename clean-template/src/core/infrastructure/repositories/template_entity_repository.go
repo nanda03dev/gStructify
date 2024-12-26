@@ -47,26 +47,26 @@ func (r *templateEntityRepository) Create(templateEntity *aggregates.TemplateEnt
 }
 
 // Bulk inserts a new templateEntity.
-func (r *templateEntityRepository) BulkCreate(items []*aggregates.TemplateEntity) ([]*aggregates.TemplateEntity, error) {
+func (r *templateEntityRepository) BulkCreate(aggregateList []*aggregates.TemplateEntity) ([]*aggregates.TemplateEntity, error) {
 
-	var entityTemplateEntitys = make([]*entity.TemplateEntity, 0, len(items))
+	var entityList = make([]*entity.TemplateEntity, 0, len(aggregateList))
 
-	for _, each := range items {
-		entityTemplateEntitys = append(entityTemplateEntitys, entity.NewTemplateEntity(each))
+	for _, each := range aggregateList {
+		entityList = append(entityList, entity.NewTemplateEntity(each))
 	}
 
-	createdTemplateEntitys, err := r.BaseRepository.BulkCreate(entityTemplateEntitys)
+	createdList, err := r.BaseRepository.BulkCreate(entityList)
 
 	if err != nil {
 		return nil, err
 	}
 
-	for _, each := range createdTemplateEntitys {
+	for _, each := range createdList {
 		eventChannel := worker_channels.GetCRUDEventChannel()
 		eventChannel <- each.GetCreatedEvent()
 
 	}
-	return items, nil
+	return aggregateList, nil
 }
 
 // FindById retrieves a templateEntity by its ID.

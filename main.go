@@ -298,8 +298,8 @@ func ToUpdateRepositoriesFile(filePath, entityName string) error {
 	endKeyword := "}"
 	content = AddNewLineToStart(lineToAddInRepoType, content, repoStartKeyword, endKeyword, "", "")
 
-	lineToAddInRepositories := fmt.Sprintf("%sRepository: New%sRepository()", entityNameUpperFirst, entityNameUpperFirst)
-	lineToAddInRepositoriesStartKeyword := "AllRepositories = &Repositories{"
+	lineToAddInRepositories := fmt.Sprintf("%sRepository: New%sRepository(databases)", entityNameUpperFirst, entityNameUpperFirst)
+	lineToAddInRepositoriesStartKeyword := "allRepositories = &Repositories{"
 	content = AddNewLineToStart(lineToAddInRepositories, content, lineToAddInRepositoriesStartKeyword, endKeyword, "", ",")
 
 	return WriteFileInPath(filePath, content)
@@ -321,7 +321,7 @@ func ToUpdateServicesFile(filePath, entityName string) error {
 	content = AddNewLineToStart(lineToAddInServiceType, content, serviceStartKeyword, endKeyword, "", "")
 
 	lineToAddInServices := fmt.Sprintf("%sService: New%sService(AllRepositories.%sRepository)", entityNameUpperFirst, entityNameUpperFirst, entityNameUpperFirst)
-	lineToAddInServicesStartKeyword := "AllServices = &Services{"
+	lineToAddInServicesStartKeyword := "allServices = &Services{"
 	content = AddNewLineToStart(lineToAddInServices, content, lineToAddInServicesStartKeyword, endKeyword, "", ",")
 
 	return WriteFileInPath(filePath, content)
@@ -344,7 +344,7 @@ func ToUpdateHandlersFile(filePath, entityName string) error {
 	content = AddNewLineToStart(lineToAddInHandlerType, content, handlerStartKeyword, endKeyword, "", "")
 
 	lineToAddInHanlders := fmt.Sprintf("%sHandler: New%sHandler(AllServices.%sService)", entityNameUpperFirst, entityNameUpperFirst, entityNameUpperFirst)
-	lineToAddInHanldersStartKeyword := "AllHandlers = &Handlers{"
+	lineToAddInHanldersStartKeyword := "allHandlers = &Handlers{"
 	content = AddNewLineToStart(lineToAddInHanlders, content, lineToAddInHanldersStartKeyword, endKeyword, "", ",")
 
 	return WriteFileInPath(filePath, content)
