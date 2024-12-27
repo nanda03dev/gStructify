@@ -9,20 +9,21 @@ import (
 
 type TemplateEntity struct {
 	ID        string
+	#@$Field$ $FieldType$#@
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
 func NewTemplateEntity(createDTO dto.CreateTemplateEntityDTO) *TemplateEntity {
 	return &TemplateEntity{
-		ID: helper.Generate16DigitUUID(), // Generate unique ID (UUID or similar)
-		// add other fields
+		ID: helper.Generate16DigitUUID(),
+		#@$Field$: createDTO.$Field$,#@
 	}
 }
 
 func UpdateTemplateEntity(id string, updateDTO dto.UpdateTemplateEntityDTO) *TemplateEntity {
 	return &TemplateEntity{
 		ID: id,
-		// add other fields
+		#@$Field$: updateDTO.$Field$,#@
 	}
 }

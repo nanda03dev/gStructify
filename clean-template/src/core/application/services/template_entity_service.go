@@ -8,10 +8,10 @@ import (
 )
 
 type TemplateEntityService interface {
-	Create(createTemplateEntityDTO dto.CreateTemplateEntityDTO) (*aggregates.TemplateEntity, error)
+	Create(createDTO dto.CreateTemplateEntityDTO) (*aggregates.TemplateEntity, error)
 	GetById(id string) (*aggregates.TemplateEntity, error)
 	FindWithFilter(filterQuery common.FilterQuery) ([]*aggregates.TemplateEntity, error)
-	Update(id string, updateTemplateEntityDTO dto.UpdateTemplateEntityDTO) (*aggregates.TemplateEntity, error)
+	Update(id string, updateDTO dto.UpdateTemplateEntityDTO) (*aggregates.TemplateEntity, error)
 	Delete(id string) error
 }
 
@@ -25,8 +25,8 @@ func NewTemplateEntityService(templateEntityRepo repositories.TemplateEntityRepo
 	}
 }
 
-func (s *templateEntityService) Create(createTemplateEntityDTO dto.CreateTemplateEntityDTO) (*aggregates.TemplateEntity, error) {
-	newData := aggregates.NewTemplateEntity(createTemplateEntityDTO)
+func (s *templateEntityService) Create(createDTO dto.CreateTemplateEntityDTO) (*aggregates.TemplateEntity, error) {
+	newData := aggregates.NewTemplateEntity(createDTO)
 	return s.templateEntityRepo.Create(newData)
 }
 
@@ -38,8 +38,8 @@ func (s *templateEntityService) FindWithFilter(filterQuery common.FilterQuery) (
 	return s.templateEntityRepo.FindWithFilter(filterQuery)
 }
 
-func (s *templateEntityService) Update(id string, updateTemplateEntityDTO dto.UpdateTemplateEntityDTO) (*aggregates.TemplateEntity, error) {
-	updatedData := aggregates.UpdateTemplateEntity(id, updateTemplateEntityDTO)
+func (s *templateEntityService) Update(id string, updateDTO dto.UpdateTemplateEntityDTO) (*aggregates.TemplateEntity, error) {
+	updatedData := aggregates.UpdateTemplateEntity(id, updateDTO)
 	return s.templateEntityRepo.Update(updatedData)
 }
 

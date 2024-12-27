@@ -28,16 +28,20 @@ func main() {
 		return
 	}
 
+	config, configErr := getConfigFile(wd)
+
 	// Accept the package name as a command-line argument
 	entity := flag.String("entity", "", "Name of the package (e.g., book)")
 	flag.Parse()
 
 	var entityName = *entity
-
-	if entityName == "" {
-		fmt.Println("Entity name not specified, Please specify entity name by using this flag -entity")
+	if entityName == "" && configErr != nil {
+		fmt.Println("Entity name not specified.")
+		fmt.Println("Please specify an entity name using the '-entity' flag or add entity details in the 'gStructify.config.json' file.")
 		return
 	}
+
+	config = getUpdatedConfig(entityName, config)
 
 	fmt.Println("Created layers for entity : ", entityName, " successfully!")
 
@@ -46,8 +50,10 @@ func main() {
 	// Get the last part
 	msName = parts[len(parts)-1]
 
-	// Generate the microservice using the package name
-	CreateNewMS(wd, packageName, ToLowerFirst(entityName))
+	for _, eachEntity := range config.Entities {
+		// Generate the microservice using the package name
+		CreateNewMS(wd, packageName, eachEntity)
+	}
 
 	// This will import all required local packages
 	ImportAllPacakges(wd)
@@ -61,11 +67,9 @@ func main() {
 }
 
 // CreateNewMS creates the microservice by copying and modifying the template files
-func CreateNewMS(outputDir, packageName string, entityName string) {
+func CreateNewMS(outputDir, packageName string, entity Entity) {
 	// Copy and modify template files
-	fmt.Println("packageName ", packageName)
-
-	err := copyDirAndModify(cleanTemplate, "clean-template", outputDir, packageName, entityName)
+	err := copyDirAndModify(cleanTemplate, "clean-template", outputDir, packageName, entity)
 	if err != nil {
 		panic(err)
 	}
@@ -74,7 +78,7 @@ func CreateNewMS(outputDir, packageName string, entityName string) {
 // copyDirAndModify recursively copies the contents of a source directory (srcDir) from the embedded file system (efs)
 // to a destination directory (destDir). During the copying process, it modifies file names and contents based on
 // the provided packageName and entityName.
-func copyDirAndModify(efs embed.FS, srcDir, destDir, packageName string, entityName string) error {
+func copyDirAndModify(efs embed.FS, srcDir, destDir, packageName string, entity Entity) error {
 
 	// Read the list of entries (files and directories) in the source directory
 	entries, err := efs.ReadDir(srcDir)
@@ -96,7 +100,7 @@ func copyDirAndModify(efs embed.FS, srcDir, destDir, packageName string, entityN
 			}
 
 			// Recursively process the subdirectory
-			err = copyDirAndModify(efs, srcPath, destPath, packageName, entityName)
+			err = copyDirAndModify(efs, srcPath, destPath, packageName, entity)
 			if err != nil {
 				return err
 			}
@@ -111,7 +115,7 @@ func copyDirAndModify(efs embed.FS, srcDir, destDir, packageName string, entityN
 			// Check if the destination file already exists
 			if _, err := os.Stat(destPath); err == nil {
 				// If the file exists, modify its content
-				err = modifyFile(destPath, entityName)
+				err = modifyFile(destPath, entity)
 				if err != nil {
 					return err
 				}
@@ -121,12 +125,12 @@ func copyDirAndModify(efs embed.FS, srcDir, destDir, packageName string, entityN
 					// if entityName == "" {
 					// 	continue // Skip renaming if entityName is empty
 					// }
-					destPath = replaceFileName(destPath, entityName)
+					destPath = replaceFileName(destPath, entity)
 				}
 
 				// Replace placeholders in the file content
 				content := string(data)
-				content = replaceEntityName(content, entityName)
+				content = replaceEntityName(content, entity)
 				content = strings.ReplaceAll(content, "github.com/nanda03dev/go-ms-template", packageName)
 
 				// Write the modified content to the destination file
@@ -142,16 +146,17 @@ func copyDirAndModify(efs embed.FS, srcDir, destDir, packageName string, entityN
 }
 
 // modifyFile modifies the destination file content to include additional code
-func modifyFile(filePath, entityName string) error {
+func modifyFile(filePath string, entity Entity) error {
+
 	if strings.Contains(filePath, "repositories.go") {
-		return ToUpdateRepositoriesFile(filePath, entityName)
+		return ToUpdateRepositoriesFile(filePath, entity)
 	}
 
 	if strings.Contains(filePath, "services.go") {
-		return ToUpdateServicesFile(filePath, entityName)
+		return ToUpdateServicesFile(filePath, entity)
 	}
 	if strings.Contains(filePath, "handlers.go") {
-		return ToUpdateHandlersFile(filePath, entityName)
+		return ToUpdateHandlersFile(filePath, entity)
 	}
 
 	// if strings.Contains(filePath, "app_module.go") {
@@ -159,21 +164,21 @@ func modifyFile(filePath, entityName string) error {
 	// }
 
 	if strings.Contains(filePath, "routes.go") {
-		return ToUpdateRouterFile(filePath, entityName)
+		return ToUpdateRouterFile(filePath, entity)
 	}
 
 	if strings.Contains(filePath, "response_messages.go") {
-		return ToUpdateCommonResponseMessage(filePath, entityName)
+		return ToUpdateCommonResponseMessage(filePath, entity)
 	}
 
 	if strings.Contains(filePath, "entities.go") {
-		return ToUpdateEntityFile(filePath, entityName)
+		return ToUpdateEntityFile(filePath, entity)
 	}
 
 	return nil
 }
 
-func ToUpdateRouterFile(filePath, entityName string) error {
+func ToUpdateRouterFile(filePath string, entity Entity) error {
 
 	var newLine = `
 	// TemplateEntity CRUD API'S
@@ -186,7 +191,7 @@ func ToUpdateRouterFile(filePath, entityName string) error {
 	templateEntityV1Routes.Delete("/:id", templateEntityHandler.DeleteTemplateEntityById)
 	`
 
-	newLine = replaceEntityName(newLine, entityName)
+	newLine = replaceEntityName(newLine, entity)
 
 	// Read the existing file content
 	data, err := os.ReadFile(filePath)
@@ -198,7 +203,7 @@ func ToUpdateRouterFile(filePath, entityName string) error {
 
 	handlerLine := "templateEntityHandler := AllHandlers.TemplateEntityHandler"
 
-	if !strings.Contains(content, replaceEntityName(handlerLine, entityName)) {
+	if !strings.Contains(content, replaceEntityName(handlerLine, entity)) {
 		startKeyword := "func InitializeRoutes(fiberApp *fiber.App) {"
 		endKeyword := "}"
 		content = AddNewLineToEnd(newLine, content, startKeyword, endKeyword, "", "")
@@ -207,10 +212,10 @@ func ToUpdateRouterFile(filePath, entityName string) error {
 	return WriteFileInPath(filePath, content)
 }
 
-func ToUpdateCommonResponseMessage(filePath, entityName string) error {
+func ToUpdateCommonResponseMessage(filePath string, entity Entity) error {
 
 	var newLine = `TemplateEntityNotFoundError = "templateEntity not found"`
-	newLine = replaceEntityName(newLine, entityName)
+	newLine = replaceEntityName(newLine, entity)
 
 	// Read the existing file content
 	data, err := os.ReadFile(filePath)
@@ -222,12 +227,12 @@ func ToUpdateCommonResponseMessage(filePath, entityName string) error {
 
 	startKeyword := "const ("
 	endKeyword := ")"
-	content = AddNewLineToEnd(newLine, content, startKeyword, endKeyword, fmt.Sprintf("\n //%s \n", ToUpperFirst(entityName)), "")
+	content = AddNewLineToEnd(newLine, content, startKeyword, endKeyword, fmt.Sprintf("\n //%s \n", ToUpperFirst(entity.EntityName)), "")
 
 	return WriteFileInPath(filePath, content)
 }
 
-func ToUpdateAppModuleFile(filePath, entityName string) error {
+func ToUpdateAppModuleFile(filePath string, entity Entity) error {
 	// Read the existing file content
 	data, err := os.ReadFile(filePath)
 	if err != nil {
@@ -235,7 +240,7 @@ func ToUpdateAppModuleFile(filePath, entityName string) error {
 	}
 
 	content := string(data)
-	entityNameUpperFirst := ToUpperFirst(entityName)
+	entityNameUpperFirst := ToUpperFirst(entity.EntityName)
 
 	lineToAddInRepoType := fmt.Sprintf("%sRepository aggregates.%sRepository", entityNameUpperFirst, entityNameUpperFirst)
 	repoStartKeyword := "type Repository struct {"
@@ -265,7 +270,7 @@ func ToUpdateAppModuleFile(filePath, entityName string) error {
 	return WriteFileInPath(filePath, content)
 }
 
-func ToUpdateEntityFile(filePath, entityName string) error {
+func ToUpdateEntityFile(filePath string, entity Entity) error {
 	// Read the existing file content
 	data, err := os.ReadFile(filePath)
 	if err != nil {
@@ -273,7 +278,7 @@ func ToUpdateEntityFile(filePath, entityName string) error {
 	}
 
 	content := string(data)
-	entityNameUpperFirst := ToUpperFirst(entityName)
+	entityNameUpperFirst := ToUpperFirst(entity.EntityName)
 
 	lineToAddInRepoType := fmt.Sprintf("&%s{},", entityNameUpperFirst)
 	repoStartKeyword := "var Entities = []interface{}{"
@@ -283,7 +288,7 @@ func ToUpdateEntityFile(filePath, entityName string) error {
 	return WriteFileInPath(filePath, content)
 }
 
-func ToUpdateRepositoriesFile(filePath, entityName string) error {
+func ToUpdateRepositoriesFile(filePath string, entity Entity) error {
 	// Read the existing file content
 	data, err := os.ReadFile(filePath)
 	if err != nil {
@@ -291,7 +296,7 @@ func ToUpdateRepositoriesFile(filePath, entityName string) error {
 	}
 
 	content := string(data)
-	entityNameUpperFirst := ToUpperFirst(entityName)
+	entityNameUpperFirst := ToUpperFirst(entity.EntityName)
 
 	lineToAddInRepoType := fmt.Sprintf("%sRepository %sRepository", entityNameUpperFirst, entityNameUpperFirst)
 	repoStartKeyword := "type Repositories struct {"
@@ -305,7 +310,7 @@ func ToUpdateRepositoriesFile(filePath, entityName string) error {
 	return WriteFileInPath(filePath, content)
 }
 
-func ToUpdateServicesFile(filePath, entityName string) error {
+func ToUpdateServicesFile(filePath string, entity Entity) error {
 	// Read the existing file content
 	data, err := os.ReadFile(filePath)
 	if err != nil {
@@ -313,7 +318,7 @@ func ToUpdateServicesFile(filePath, entityName string) error {
 	}
 
 	content := string(data)
-	entityNameUpperFirst := ToUpperFirst(entityName)
+	entityNameUpperFirst := ToUpperFirst(entity.EntityName)
 	endKeyword := "}"
 
 	lineToAddInServiceType := fmt.Sprintf("%sService %sService", entityNameUpperFirst, entityNameUpperFirst)
@@ -327,7 +332,7 @@ func ToUpdateServicesFile(filePath, entityName string) error {
 	return WriteFileInPath(filePath, content)
 }
 
-func ToUpdateHandlersFile(filePath, entityName string) error {
+func ToUpdateHandlersFile(filePath string, entity Entity) error {
 	// Read the existing file content
 	data, err := os.ReadFile(filePath)
 	if err != nil {
@@ -335,7 +340,7 @@ func ToUpdateHandlersFile(filePath, entityName string) error {
 	}
 
 	content := string(data)
-	entityNameUpperFirst := ToUpperFirst(entityName)
+	entityNameUpperFirst := ToUpperFirst(entity.EntityName)
 	endKeyword := "}"
 
 	lineToAddInHandlerType := fmt.Sprintf("%sHandler %sHandler", entityNameUpperFirst, entityNameUpperFirst)

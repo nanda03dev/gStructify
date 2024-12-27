@@ -115,6 +115,7 @@ func (c *templateEntityHandler) DeleteTemplateEntityById(ctx *fiber.Ctx) error {
 func (c *templateEntityHandler) toResponseDTO(templateEntity *aggregates.TemplateEntity) dto.TemplateEntityResponseDTO {
 	return dto.TemplateEntityResponseDTO{
 		ID: templateEntity.ID,
+		#@$Field$: templateEntity.$Field$,#@
 	}
 }
 

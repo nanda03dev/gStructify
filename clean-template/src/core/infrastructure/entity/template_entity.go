@@ -15,6 +15,7 @@ type TemplateEntity struct {
 	ID        string `gorm:"primaryKey"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	#@$Field$ $FieldType$#@
 }
 
 // Helper function: Converts an aggregate TemplateEntity to an entity TemplateEntity
@@ -23,6 +24,7 @@ func NewTemplateEntity(templateEntity *aggregates.TemplateEntity) *TemplateEntit
 		ID:        templateEntity.ID,
 		CreatedAt: templateEntity.CreatedAt,
 		UpdatedAt: templateEntity.UpdatedAt,
+		#@$Field$: templateEntity.$Field$,#@
 	}
 }
 
@@ -53,10 +55,11 @@ func (e *TemplateEntity) GetEvent(operationType common.EventType) common.Event {
 }
 
 // Helper function: Converts an entity TemplateEntity to an aggregate TemplateEntity
-func (e *TemplateEntity) ToDomain() *aggregates.TemplateEntity {
+func (templateEntity *TemplateEntity) ToDomain() *aggregates.TemplateEntity {
 	return &aggregates.TemplateEntity{
-		ID:        e.ID,
-		CreatedAt: e.CreatedAt,
-		UpdatedAt: e.UpdatedAt,
+		ID:        templateEntity.ID,
+		CreatedAt: templateEntity.CreatedAt,
+		UpdatedAt: templateEntity.UpdatedAt,
+		#@$Field$: templateEntity.$Field$,#@
 	}
 }
