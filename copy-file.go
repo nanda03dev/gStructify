@@ -9,14 +9,14 @@ import (
 // modifyFile modifies the destination file content to include additional code
 func modifyFile(filePath string, entity Entity) error {
 
-	if strings.Contains(filePath, "repositories.go") {
+	if strings.Contains(filePath, "repository.go") {
 		return ToUpdateRepositoriesFile(filePath, entity)
 	}
 
-	if strings.Contains(filePath, "services.go") {
+	if strings.Contains(filePath, "service.go") {
 		return ToUpdateServicesFile(filePath, entity)
 	}
-	if strings.Contains(filePath, "handlers.go") {
+	if strings.Contains(filePath, "handler.go") {
 		return ToUpdateHandlersFile(filePath, entity)
 	}
 
@@ -24,7 +24,7 @@ func modifyFile(filePath string, entity Entity) error {
 	// 	return ToUpdateAppModuleFile(filePath, entityName)
 	// }
 
-	if strings.Contains(filePath, "routes.go") {
+	if strings.Contains(filePath, "route.go") {
 		return ToUpdateRouterFile(filePath, entity)
 	}
 
@@ -103,28 +103,28 @@ func ToUpdateAppModuleFile(filePath string, entity Entity) error {
 	content := string(data)
 	entityNameUpperFirst := ToUpperFirst(entity.EntityName)
 
-	lineToAddInRepoType := fmt.Sprintf("%sRepository aggregates.%sRepository", entityNameUpperFirst, entityNameUpperFirst)
+	lineToAddInRepoType := fmt.Sprintf("%sRepository aggregate.%sRepository", entityNameUpperFirst, entityNameUpperFirst)
 	repoStartKeyword := "type Repository struct {"
 	endKeyword := "}"
 	content = AddNewLineToStart(lineToAddInRepoType, content, repoStartKeyword, endKeyword, "", "")
 
-	lineToAddInRepositories := fmt.Sprintf("%sRepository: repositories.New%sRepository()", entityNameUpperFirst, entityNameUpperFirst)
+	lineToAddInRepositories := fmt.Sprintf("%sRepository: repository.New%sRepository()", entityNameUpperFirst, entityNameUpperFirst)
 	lineToAddInRepositoriesStartKeyword := "var AllRepositories = Repository{"
 	content = AddNewLineToStart(lineToAddInRepositories, content, lineToAddInRepositoriesStartKeyword, endKeyword, "", ",")
 
-	lineToAddInServiceType := fmt.Sprintf("%sService services.%sService", entityNameUpperFirst, entityNameUpperFirst)
+	lineToAddInServiceType := fmt.Sprintf("%sService service.%sService", entityNameUpperFirst, entityNameUpperFirst)
 	serviceStartKeyword := "type Service struct {"
 	content = AddNewLineToStart(lineToAddInServiceType, content, serviceStartKeyword, endKeyword, "", "")
 
-	lineToAddInServices := fmt.Sprintf("%sService: services.New%sService(AllRepositories.%sRepository)", entityNameUpperFirst, entityNameUpperFirst, entityNameUpperFirst)
+	lineToAddInServices := fmt.Sprintf("%sService: service.New%sService(Allrepository.%sRepository)", entityNameUpperFirst, entityNameUpperFirst, entityNameUpperFirst)
 	lineToAddInServicesStartKeyword := "var AllServices = Service{"
 	content = AddNewLineToStart(lineToAddInServices, content, lineToAddInServicesStartKeyword, endKeyword, "", ",")
 
-	lineToAddInHandlerType := fmt.Sprintf("%sHandler handlers.%sHandler", entityNameUpperFirst, entityNameUpperFirst)
+	lineToAddInHandlerType := fmt.Sprintf("%sHandler handler.%sHandler", entityNameUpperFirst, entityNameUpperFirst)
 	handlerStartKeyword := "type Handler struct {"
 	content = AddNewLineToStart(lineToAddInHandlerType, content, handlerStartKeyword, endKeyword, "", "")
 
-	lineToAddInHanlders := fmt.Sprintf("%sHandler: handlers.New%sHandler(AllServices.%sService)", entityNameUpperFirst, entityNameUpperFirst, entityNameUpperFirst)
+	lineToAddInHanlders := fmt.Sprintf("%sHandler: handler.New%sHandler(Allservice.%sService)", entityNameUpperFirst, entityNameUpperFirst, entityNameUpperFirst)
 	lineToAddInHanldersStartKeyword := "var AllHandlers = Handler{"
 	content = AddNewLineToStart(lineToAddInHanlders, content, lineToAddInHanldersStartKeyword, endKeyword, "", ",")
 
@@ -186,7 +186,7 @@ func ToUpdateServicesFile(filePath string, entity Entity) error {
 	serviceStartKeyword := "type Services struct {"
 	content = AddNewLineToStart(lineToAddInServiceType, content, serviceStartKeyword, endKeyword, "", "")
 
-	lineToAddInServices := fmt.Sprintf("%sService: New%sService(AllRepositories.%sRepository)", entityNameUpperFirst, entityNameUpperFirst, entityNameUpperFirst)
+	lineToAddInServices := fmt.Sprintf("%sService: New%sService(AllRepository.%sRepository)", entityNameUpperFirst, entityNameUpperFirst, entityNameUpperFirst)
 	lineToAddInServicesStartKeyword := "allServices = &Services{"
 	content = AddNewLineToStart(lineToAddInServices, content, lineToAddInServicesStartKeyword, endKeyword, "", ",")
 

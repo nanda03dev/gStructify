@@ -1,12 +1,12 @@
-package handlers
+package handler
 
 import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/nanda03dev/go-ms-template/src/common"
-	"github.com/nanda03dev/go-ms-template/src/core/application/services"
-	"github.com/nanda03dev/go-ms-template/src/core/domain/aggregates"
+	"github.com/nanda03dev/go-ms-template/src/core/application/service"
+	"github.com/nanda03dev/go-ms-template/src/core/domain/aggregate"
 	"github.com/nanda03dev/go-ms-template/src/core/interface/dto"
 )
 
@@ -19,10 +19,10 @@ type TemplateEntityHandler interface {
 }
 
 type templateEntityHandler struct {
-	templateEntityService services.TemplateEntityService
+	templateEntityService service.TemplateEntityService
 }
 
-func NewTemplateEntityHandler(templateEntityService services.TemplateEntityService) TemplateEntityHandler {
+func NewTemplateEntityHandler(templateEntityService service.TemplateEntityService) TemplateEntityHandler {
 	return &templateEntityHandler{
 		templateEntityService: templateEntityService,
 	}
@@ -112,7 +112,7 @@ func (c *templateEntityHandler) DeleteTemplateEntityById(ctx *fiber.Ctx) error {
 }
 
 // Helper function to convert Entity to TemplateEntityResponseDTO
-func (c *templateEntityHandler) toResponseDTO(templateEntity *aggregates.TemplateEntity) dto.TemplateEntityResponseDTO {
+func (c *templateEntityHandler) toResponseDTO(templateEntity *aggregate.TemplateEntity) dto.TemplateEntityResponseDTO {
 	return dto.TemplateEntityResponseDTO{
 		ID: templateEntity.ID,
 		#@$Field$: templateEntity.$Field$,#@
@@ -120,7 +120,7 @@ func (c *templateEntityHandler) toResponseDTO(templateEntity *aggregates.Templat
 }
 
 // Function to convert an array of TemplateEntitys to an array of TemplateEntityResponseDTOs
-func (c *templateEntityHandler) toResponseDTOArray(templateEntitys []*aggregates.TemplateEntity) []dto.TemplateEntityResponseDTO {
+func (c *templateEntityHandler) toResponseDTOArray(templateEntitys []*aggregate.TemplateEntity) []dto.TemplateEntityResponseDTO {
 	var responseDTOs = make([]dto.TemplateEntityResponseDTO, 0, len(templateEntitys))
 	for _, templateEntity := range templateEntitys {
 		responseDTOs = append(responseDTOs, c.toResponseDTO(templateEntity))

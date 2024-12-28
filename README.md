@@ -5,7 +5,7 @@ A Golang package designed to generate high-performance backend services using fa
 ## Features
 - Automatically generates backend code structure for Go projects.
 - Creates service folders with pre-configured Go modules.
-- Simplifies repetitive tasks in setting up backend services.
+- Simplifies repetitive tasks in setting up backend service.
 
 ## Project Structure
 

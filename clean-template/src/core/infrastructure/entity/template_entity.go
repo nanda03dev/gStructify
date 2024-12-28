@@ -19,7 +19,7 @@ type TemplateEntity struct {
 }
 
 // Helper function: Converts an aggregate TemplateEntity to an entity TemplateEntity
-func NewTemplateEntity(templateEntity *aggregates.TemplateEntity) *TemplateEntity {
+func NewTemplateEntity(templateEntity *aggregate.TemplateEntity) *TemplateEntity {
 	return &TemplateEntity{
 		ID:        templateEntity.ID,
 		#@$Field$: templateEntity.$Field$,#@
@@ -55,8 +55,8 @@ func (e *TemplateEntity) GetEvent(operationType common.EventType) common.Event {
 }
 
 // Helper function: Converts an entity TemplateEntity to an aggregate TemplateEntity
-func (templateEntity *TemplateEntity) ToDomain() *aggregates.TemplateEntity {
-	return &aggregates.TemplateEntity{
+func (templateEntity *TemplateEntity) ToDomain() *aggregate.TemplateEntity {
+	return &aggregate.TemplateEntity{
 		ID:        templateEntity.ID,
 		#@$Field$: templateEntity.$Field$,#@
 		CreatedAt: templateEntity.CreatedAt,

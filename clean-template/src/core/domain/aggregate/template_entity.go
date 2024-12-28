@@ -1,4 +1,4 @@
-package aggregates
+package aggregate
 
 import (
 	"time"

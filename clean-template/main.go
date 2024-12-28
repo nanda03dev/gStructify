@@ -9,9 +9,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/nanda03dev/go-ms-template/src/bootstrap"
-	"github.com/nanda03dev/go-ms-template/src/core/application/workers"
-	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/db"
-	"github.com/nanda03dev/go-ms-template/src/core/interface/router"
 )
 
 func main() {
@@ -32,7 +29,7 @@ func main() {
 		<-sigChan
 
 		// Graceful shutdown logic
-		log.Println("Shutting down workers...")
+		log.Println("Shutting down worker...")
 		cancel() // Stop workers
 
 		// Gracefully shut down the Fiber app
