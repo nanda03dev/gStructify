@@ -2,24 +2,25 @@ package services
 
 import (
 	"sync"
-
-	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/repositories"
 )
 
 type Services struct {
 	TemplateEntityService TemplateEntityService
+	EventService          EventService
 }
 
 var (
-	once        sync.Once
-	AllServices *Services
+	servicesOnce sync.Once
+	allServices  *Services
 )
 
 func GetServices() *Services {
-	once.Do(func() {
-		AllServices = &Services{
-			TemplateEntityService: NewTemplateEntityService(),
+	servicesOnce.Do(func() {
+		var AllRepositories = repositories.GetRepositories()
+		allServices = &Services{
+			TemplateEntityService: NewTemplateEntityService(AllRepositories.TemplateEntityRepository),
+			EventService:          NewEventService(AllRepositories.EventRepository),
 		}
 	})
-	return AllServices
+	return allServices
 }

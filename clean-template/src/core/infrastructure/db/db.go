@@ -14,7 +14,7 @@ type DatabaseInfo struct {
 }
 
 type Databases struct {
-	DB *PostgresDB
+	Postgres *PostgresDB
 }
 
 var (
@@ -49,7 +49,7 @@ func ConnectAll() *Databases {
 			fmt.Println("successfully connected to PostgreSQL")
 		}
 		DatabaseConnection = &Databases{
-			DB: postgresDB,
+			Postgres: postgresDB,
 		}
 	})
 
@@ -57,5 +57,5 @@ func ConnectAll() *Databases {
 }
 
 func (DatabaseConnection *Databases) DisconnectAll() {
-	DatabaseConnection.DB.Disconnect()
+	DatabaseConnection.Postgres.Disconnect()
 }

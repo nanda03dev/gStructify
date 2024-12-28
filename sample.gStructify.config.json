@@ -1,0 +1,55 @@
+{
+    "entities": [
+        {
+            "entity_name": "user",
+            "fields": [
+                {
+                    "field_name": "name",
+                    "type": "string"
+                },
+                {
+                    "field_name": "email",
+                    "type": "string"
+                },
+                {
+                    "field_name": "phone_number",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "entity_name": "order",
+            "fields": [
+                {
+                    "field_name": "user_id",
+                    "type": "int"
+                },
+                {
+                    "field_name": "order_amount",
+                    "type": "int"
+                },
+                {
+                    "field_name": "items",
+                    "type": "[]string"
+                }
+            ]
+        },
+        {
+            "entity_name": "item",
+            "fields": [
+                {
+                    "field_name": "user_id",
+                    "type": "int"
+                },
+                {
+                    "field_name": "order_amount",
+                    "type": "int"
+                },
+                {
+                    "field_name": "items",
+                    "type": "[]string"
+                }
+            ]
+        }
+    ]
+}

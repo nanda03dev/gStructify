@@ -18,7 +18,8 @@ func StartCRUDEventWorker(ctx context.Context) {
 			log.Println("Processing data:", event)
 			// Simulate processing, e.g., saving to database
 			if event.Config.EventStore {
-				services.NewEventService().Create(event)
+				AllServices := services.GetServices()
+				AllServices.EventService.Create(event)
 			}
 			// Optional: Add any delay or logic as required
 			time.Sleep(1 * time.Second)

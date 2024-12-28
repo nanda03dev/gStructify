@@ -7,10 +7,10 @@ import (
 )
 
 type EventService interface {
-	Create(createEventDTO common.Event) (*aggregates.Event, error)
+	Create(createDTO common.Event) (*aggregates.Event, error)
 	GetById(id string) (*aggregates.Event, error)
 	FindWithFilter(filterQuery common.FilterQuery) ([]*aggregates.Event, error)
-	Update(id string, updateEventDTO common.Event) (*aggregates.Event, error)
+	Update(id string, updateDTO common.Event) (*aggregates.Event, error)
 	Delete(id string) error
 }
 
@@ -18,15 +18,14 @@ type eventService struct {
 	eventRepo repositories.EventRepository
 }
 
-func NewEventService() EventService {
-	var AllRepositories = repositories.GetRepositories()
+func NewEventService(eventRepository repositories.EventRepository) EventService {
 	return &eventService{
-		eventRepo: AllRepositories.EventRepository,
+		eventRepo: eventRepository,
 	}
 }
 
-func (s *eventService) Create(createEventDTO common.Event) (*aggregates.Event, error) {
-	newData := aggregates.NewEvent(createEventDTO)
+func (s *eventService) Create(createDTO common.Event) (*aggregates.Event, error) {
+	newData := aggregates.NewEvent(createDTO)
 	return s.eventRepo.Create(newData)
 }
 
@@ -38,8 +37,8 @@ func (s *eventService) FindWithFilter(filterQuery common.FilterQuery) ([]*aggreg
 	return s.eventRepo.FindWithFilter(filterQuery)
 }
 
-func (s *eventService) Update(id string, updateEventDTO common.Event) (*aggregates.Event, error) {
-	updatedData := aggregates.UpdateEvent(id, updateEventDTO)
+func (s *eventService) Update(id string, updateDTO common.Event) (*aggregates.Event, error) {
+	updatedData := aggregates.UpdateEvent(id, updateDTO)
 	return s.eventRepo.Update(updatedData)
 }
 

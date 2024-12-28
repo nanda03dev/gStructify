@@ -28,6 +28,15 @@ func (r *BaseRepository[T]) Create(entity *T) (*T, error) {
 	return entity, nil
 }
 
+// Bulk inserts a new record into the database.
+func (r *BaseRepository[T]) BulkCreate(entities []*T) ([]*T, error) {
+	if err := r.db.Create(entities).Error; err != nil {
+		return nil, fmt.Errorf("failed to create record: %w", err)
+	}
+
+	return entities, nil
+}
+
 // FindById retrieves a record by its ID.
 func (r *BaseRepository[T]) FindById(id string) (*T, error) {
 	var entity T
@@ -37,6 +46,26 @@ func (r *BaseRepository[T]) FindById(id string) (*T, error) {
 		}
 		return nil, fmt.Errorf("failed to find record by ID: %w", err)
 	}
+	return &entity, nil
+}
+
+// FindById retrieves a record by its ID.
+func (r *BaseRepository[T]) FindByIdWithRelation(id string, preloadRelations []string) (*T, error) {
+	var entity T
+	query := r.db.Model(&entity)
+
+	// Loop through the preloadRelations slice and apply Preload for each relation dynamically
+	for _, relation := range preloadRelations {
+		query = query.Preload(relation)
+	}
+
+	// Now execute the First query to fetch the entity with preloaded relations
+	if err := query.First(&entity, "id = ?", id).Error; err != nil {
+		// Handle error (e.g., record not found, or other DB errors)
+		return nil, fmt.Errorf("failed to fetch entity with relations: %w", err)
+	}
+
+	// Return the entity with preloaded relations
 	return &entity, nil
 }
 
@@ -111,7 +140,7 @@ func (r *BaseRepository[T]) FindWithFilter(filterQuery common.FilterQuery) ([]*T
 		query = query.Limit(int(filterQuery.MaxResults))
 	} else {
 		// Default to 10 if limit is not provided
-		query = query.Limit(10)
+		query = query.Limit(1000)
 	}
 	if filterQuery.Offset > 0 {
 		query = query.Offset(int(filterQuery.Offset))

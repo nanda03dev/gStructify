@@ -5,7 +5,6 @@ import (
 
 	"github.com/nanda03dev/go-ms-template/src/common"
 	"github.com/nanda03dev/go-ms-template/src/core/domain/aggregates"
-	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/db"
 	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/entity"
 )
 
@@ -23,10 +22,9 @@ type eventRepository struct {
 }
 
 // NewEventRepository initializes a new eventRepository instance.
-func NewEventRepository() EventRepository {
-	var databases = db.ConnectAll()
+func NewEventRepository(databases *db.Databases) EventRepository {
 	return &eventRepository{
-		BaseRepository: NewBaseRepository[entity.Event](databases.DB.DB), // Initialize BaseRepository with the entity.Event type
+		BaseRepository: NewBaseRepository[entity.Event](databases.Postgres.DB), // Initialize BaseRepository with the entity.Event type
 	}
 }
 

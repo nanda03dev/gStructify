@@ -32,13 +32,13 @@ func (c *templateEntityHandler) CreateTemplateEntity(ctx *fiber.Ctx) error {
 	var templateEntityDTO dto.CreateTemplateEntityDTO
 
 	if err := ctx.BodyParser(&templateEntityDTO); err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(ErrorResponse(common.InvalidRequestError))
+		return ctx.Status(http.StatusBadRequest).JSON(ErrorResponse(err))
 	}
 
 	result, err := c.templateEntityService.Create(templateEntityDTO)
 
 	if err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(ErrorResponse(common.InvalidRequestError))
+		return ctx.Status(http.StatusBadRequest).JSON(ErrorResponse(err))
 	}
 
 	return ctx.Status(http.StatusOK).JSON(SuccessResponse(c.toResponseDTO(result)))
@@ -59,7 +59,7 @@ func (c *templateEntityHandler) FindTemplateEntityWithFilter(ctx *fiber.Ctx) err
 	var filterDTO common.FilterQuery
 
 	if err := ctx.BodyParser(&filterDTO); err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(ErrorResponse(common.InvalidRequestError))
+		return ctx.Status(http.StatusBadRequest).JSON(ErrorResponse(err))
 	}
 
 	templateEntitys, err := c.templateEntityService.FindWithFilter(filterDTO)
@@ -81,13 +81,13 @@ func (c *templateEntityHandler) UpdateTemplateEntityById(ctx *fiber.Ctx) error {
 	var templateEntityDTO dto.UpdateTemplateEntityDTO
 
 	if err := ctx.BodyParser(&templateEntityDTO); err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(ErrorResponse(common.InvalidRequestError))
+		return ctx.Status(http.StatusBadRequest).JSON(ErrorResponse(err))
 	}
 
 	result, err := c.templateEntityService.Update(idParam, templateEntityDTO)
 
 	if err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(ErrorResponse(common.InvalidRequestError))
+		return ctx.Status(http.StatusBadRequest).JSON(ErrorResponse(err))
 	}
 
 	return ctx.Status(http.StatusOK).JSON(SuccessResponse(c.toResponseDTO(result)))
@@ -115,6 +115,7 @@ func (c *templateEntityHandler) DeleteTemplateEntityById(ctx *fiber.Ctx) error {
 func (c *templateEntityHandler) toResponseDTO(templateEntity *aggregates.TemplateEntity) dto.TemplateEntityResponseDTO {
 	return dto.TemplateEntityResponseDTO{
 		ID: templateEntity.ID,
+		#@$Field$: templateEntity.$Field$,#@
 	}
 }
 

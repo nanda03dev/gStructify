@@ -16,21 +16,21 @@ type Event struct {
 	UpdatedAt  time.Time
 }
 
-func NewEvent(createEventDTO common.Event) *Event {
+func NewEvent(createDTO common.Event) *Event {
 	return &Event{
 		ID:         helper.Generate16DigitUUID(), // Generate unique ID (UUID or similar)
-		EntityId:   createEventDTO.EntityId,
-		EntityName: string(createEventDTO.EntityName),
-		Type:       string(createEventDTO.Type),
+		EntityId:   createDTO.EntityId,
+		EntityName: string(createDTO.EntityName),
+		Type:       string(createDTO.Type),
 	}
 }
 
-func UpdateEvent(id string, updateEventDTO common.Event) *Event {
+func UpdateEvent(id string, updateDTO common.Event) *Event {
 	return &Event{
 		ID:         id,
-		EntityId:   updateEventDTO.EntityId,
-		EntityName: string(updateEventDTO.EntityName),
-		Type:       string(updateEventDTO.Type),
+		EntityId:   updateDTO.EntityId,
+		EntityName: string(updateDTO.EntityName),
+		Type:       string(updateDTO.Type),
 	}
 }
 

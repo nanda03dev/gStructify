@@ -12,7 +12,10 @@ A Golang package designed to generate high-performance backend services using fa
 ```
 project/
 ├── sql-migrations/                      # Migration scripts for PostgreSQL
-│   └── user_migration.sql
+│   ├── seed/     
+│   │   └── init-seed.sql   
+│   ├── sql/     
+│   │   └── init.sql
 ├── main.go                              # Application entry point
 ├── go.mod
 ├── src/                                 # Source code folder
