@@ -42,8 +42,9 @@ func main() {
 	}
 
 	config = getUpdatedConfig(entityName, config)
+	var entityNames []string = GetEntityNames(config)
 
-	fmt.Println("Created layers for entity : ", entityName, " successfully!")
+	fmt.Printf("\nCreated layers successfully for entities : %v \n", entityNames)
 
 	// Split the string by "/"
 	parts := strings.Split(packageName, "/")

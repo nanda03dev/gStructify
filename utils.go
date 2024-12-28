@@ -87,6 +87,14 @@ func getPackageName(dir string) (string, error) {
 	return "", fmt.Errorf("module name not found in go.mod")
 }
 
+func GetEntityNames(config Config) []string {
+	var entityNames []string
+	for _, entity := range config.Entities {
+		entityNames = append(entityNames, entity.EntityName)
+	}
+	return entityNames
+}
+
 // This function Add new line to the content at specfic index
 func AddNewLineToStart(newline, content, startKeyword, endKeyword, addToStartOfLine, addToEndOfLine string) string {
 	if strings.Contains(normalizeWhitespace(content), normalizeWhitespace(newline)) {
@@ -159,7 +167,9 @@ func replaceEntityName(content string, entity Entity) string {
 		if len(eachMatch) > 1 {
 			var newLines = ""
 			var matchLine = eachMatch[1]
-			for _, field := range entity.Fields {
+			var lastIndex = len(entity.Fields)
+
+			for index, field := range entity.Fields {
 				if TrimLowerCase(field.FieldName) != "id" && len(field.FieldName) > 0 {
 					fieldCamel := snakeToCamelCase(field.FieldName)
 					newLine := strings.ReplaceAll(matchLine, "$Field$", ToUpperFirst(fieldCamel))
@@ -171,7 +181,10 @@ func replaceEntityName(content string, entity Entity) string {
 					}
 
 					newLine = strings.ReplaceAll(newLine, "$FieldType$", fieldType)
-					newLines = newLines + newLine + "\n"
+					newLines = newLines + newLine
+					if index < lastIndex-1 {
+						newLines = newLines + "\n"
+					}
 				}
 
 			}
