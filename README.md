@@ -11,42 +11,42 @@ A Golang package designed to generate high-performance backend services using fa
 
 ```
 project/
-├── sql-migrations/                      # Migration scripts for PostgreSQL
+├── sql-migrations/                          # Migration scripts for PostgreSQL
 │   ├── seed/     
 │   │   └── init-seed.sql   
 │   ├── sql/     
 │   │   └── init.sql
-├── main.go                              # Application entry point
+├── main.go                                  # Application entry point
 ├── go.mod
-├── src/                                 # Source code folder
-│   ├── bootstrap/                       # Central module initialization
+├── src/                                     # Source code folder
+│   ├── bootstrap/                           # Central module initialization
 │   │   └── bootstrap.go               
-│   ├── common/                          # Common utility functions
-│   │   ├── constants.go                 # UUID generator
-│   ├── core/                            # Contains all the layers
+│   ├── common/                              # Common utility functions
+│   │   ├── constants.go                     # UUID generator
+│   ├── core/                                # Contains all the layers
 │   │   ├── domain/
 │   │   │   └── aggregates/
-│   │   │       ├── user.go              # Business logic for User (Domain model)
+│   │   │       ├── user.go                  # Business logic for User (Domain model)
 │   │   ├── application/
 │   │   │   └── service/
-│   │   │       ├── user_service.go      # Business logic for User
+│   │   │       ├── user_service.go          # Business logic for User
 │   │   │   └── workers/
-│   │   │       ├── worker.go            # Background worker
+│   │   │       ├── worker.go                # Background worker
 │   │   ├── infrastructure/
 │   │   │   ├── db/
-│   │   │   │   ├── db.go                # General Database connection
-│   │   │   │   └── sql-db.go            # SQL-DB connection logic
+│   │   │   │   ├── db.go                    # General Database connection
+│   │   │   │   └── sql-db.go                # SQL-DB connection logic
 │   │   │   ├── entity/
-│   │   │   │   ├── user.go               # MongoDB User entity
+│   │   │   │   ├── user.go                  # User entity
 │   │   │   ├── repository/
-│   │   │   │   ├── user_repository_impl.go  # MongoDB UserRepository implementation
+│   │   │   │   ├── user_repository_impl.go  # UserRepository implementation
 │   │   ├── interface/
 │   │   │   └── dto/
-│   │   │       ├── user_dto.go          # Request and Response DTO for User
+│   │   │       ├── user_dto.go              # Request and Response DTO for User
 │   │   │   └── handlers/
-│   │   │       ├── user_handler.go      # HTTP handler for User
-│   ├── helpers/                         # Additional utility functions 
-│   │   ├── string_helpers.go            # String manipulation helpers
+│   │   │       ├── user_handler.go          # HTTP handler for User
+│   ├── helpers/                             # Additional utility functions 
+│   │   ├── string_helpers.go                # String manipulation helpers
 
 ```
 
