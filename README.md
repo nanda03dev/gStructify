@@ -40,7 +40,7 @@ project/
 │   │   │   │   ├── user.go               # MongoDB User entity
 │   │   │   ├── repository/
 │   │   │   │   ├── user_repository_impl.go  # MongoDB UserRepository implementation
-│   │   ├── interfaces/
+│   │   ├── interface/
 │   │   │   └── dto/
 │   │   │       ├── user_dto.go          # Request and Response DTO for User
 │   │   │   └── handlers/
