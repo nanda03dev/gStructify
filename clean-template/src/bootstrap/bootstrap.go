@@ -5,9 +5,9 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/nanda03dev/go-ms-template/src/core/application/workers"
+	"github.com/nanda03dev/go-ms-template/src/core/application/worker"
 	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/db"
-	"github.com/nanda03dev/go-ms-template/src/core/interface/routes"
+	"github.com/nanda03dev/go-ms-template/src/core/interface/route"
 )
 
 type ApplicationManager interface {
@@ -36,9 +36,9 @@ func (app *applicationManager) DisconnectDatabase() {
 func (app *applicationManager) Run() {
 
 	// Initialize workers
-	log.Println("Starting workers...")
-	workers.InitializeWorkers(app.ctx)
+	log.Println("Starting worker...")
+	worker.InitializeWorkers(app.ctx)
 
 	// Initialize routes
-	routes.InitializeRoutes(app.fiberApp)
+	route.InitializeRoutes(app.fiberApp)
 }

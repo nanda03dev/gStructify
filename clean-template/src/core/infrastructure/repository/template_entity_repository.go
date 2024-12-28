@@ -1,21 +1,20 @@
-package repositories
+package repository
 
 import (
 	"fmt"
 
 	"github.com/nanda03dev/go-ms-template/src/common"
-	"github.com/nanda03dev/go-ms-template/src/core/domain/aggregates"
 	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/db"
 	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/entity"
-	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/worker_channels"
+	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/worker_channel"
 )
 
 type TemplateEntityRepository interface {
-	Create(templateEntity *aggregates.TemplateEntity) (*aggregates.TemplateEntity, error)
-	BulkCreate(templateEntity []*aggregates.TemplateEntity) ([]*aggregates.TemplateEntity, error)
-	FindById(id string) (*aggregates.TemplateEntity, error)
-	FindWithFilter(filterQuery common.FilterQuery) ([]*aggregates.TemplateEntity, error)
-	Update(templateEntity *aggregates.TemplateEntity) (*aggregates.TemplateEntity, error)
+	Create(templateEntity *aggregate.TemplateEntity) (*aggregate.TemplateEntity, error)
+	BulkCreate(templateEntity []*aggregate.TemplateEntity) ([]*aggregate.TemplateEntity, error)
+	FindById(id string) (*aggregate.TemplateEntity, error)
+	FindWithFilter(filterQuery common.FilterQuery) ([]*aggregate.TemplateEntity, error)
+	Update(templateEntity *aggregate.TemplateEntity) (*aggregate.TemplateEntity, error)
 	Delete(id string) error
 }
 
@@ -27,12 +26,12 @@ type templateEntityRepository struct {
 // NewTemplateEntityRepository initializes a new templateEntityRepository instance.
 func NewTemplateEntityRepository(databases *db.Databases) TemplateEntityRepository {
 	return &templateEntityRepository{
-		BaseRepository: NewBaseRepository[entity.TemplateEntity](databases.Postgres.DB), // Initialize BaseRepository with the entity.TemplateEntity type
+		BaseRepository: NewBaseRepository[entity.TemplateEntity](databases.SqlDB.DB), // Initialize BaseRepository with the entity.TemplateEntity type
 	}
 }
 
 // Create inserts a new templateEntity.
-func (r *templateEntityRepository) Create(templateEntity *aggregates.TemplateEntity) (*aggregates.TemplateEntity, error) {
+func (r *templateEntityRepository) Create(templateEntity *aggregate.TemplateEntity) (*aggregate.TemplateEntity, error) {
 	entityTemplateEntity := entity.NewTemplateEntity(templateEntity)
 	createdTemplateEntity, err := r.BaseRepository.Create(entityTemplateEntity)
 
@@ -40,14 +39,14 @@ func (r *templateEntityRepository) Create(templateEntity *aggregates.TemplateEnt
 		return nil, err
 	}
 
-	eventChannel := worker_channels.GetCRUDEventChannel()
+	eventChannel := worker_channel.GetCRUDEventChannel()
 	eventChannel <- entityTemplateEntity.GetCreatedEvent()
 
 	return createdTemplateEntity.ToDomain(), nil
 }
 
 // Bulk inserts a new templateEntity.
-func (r *templateEntityRepository) BulkCreate(aggregateList []*aggregates.TemplateEntity) ([]*aggregates.TemplateEntity, error) {
+func (r *templateEntityRepository) BulkCreate(aggregateList []*aggregate.TemplateEntity) ([]*aggregate.TemplateEntity, error) {
 
 	var entityList = make([]*entity.TemplateEntity, 0, len(aggregateList))
 
@@ -62,7 +61,7 @@ func (r *templateEntityRepository) BulkCreate(aggregateList []*aggregates.Templa
 	}
 
 	for _, each := range createdList {
-		eventChannel := worker_channels.GetCRUDEventChannel()
+		eventChannel := worker_channel.GetCRUDEventChannel()
 		eventChannel <- each.GetCreatedEvent()
 
 	}
@@ -70,13 +69,13 @@ func (r *templateEntityRepository) BulkCreate(aggregateList []*aggregates.Templa
 }
 
 // FindById retrieves a templateEntity by its ID.
-func (r *templateEntityRepository) FindById(id string) (*aggregates.TemplateEntity, error) {
+func (r *templateEntityRepository) FindById(id string) (*aggregate.TemplateEntity, error) {
 	entityTemplateEntity, err := r.BaseRepository.FindById(id)
 	return entityTemplateEntity.ToDomain(), err
 }
 
 // FindWithFilter retrieves a templateEntity by .
-func (r *templateEntityRepository) FindWithFilter(filterQuery common.FilterQuery) ([]*aggregates.TemplateEntity, error) {
+func (r *templateEntityRepository) FindWithFilter(filterQuery common.FilterQuery) ([]*aggregate.TemplateEntity, error) {
 
 	templateEntitys, err := r.BaseRepository.FindWithFilter(filterQuery)
 	if err != nil {
@@ -84,7 +83,7 @@ func (r *templateEntityRepository) FindWithFilter(filterQuery common.FilterQuery
 	}
 
 	// Convert entity templateEntitys to aggregate templateEntitys and return
-	var result []*aggregates.TemplateEntity
+	var result []*aggregate.TemplateEntity
 	for _, templateEntity := range templateEntitys {
 		result = append(result, templateEntity.ToDomain())
 	}
@@ -93,7 +92,7 @@ func (r *templateEntityRepository) FindWithFilter(filterQuery common.FilterQuery
 }
 
 // Update modifies an existing templateEntity.
-func (r *templateEntityRepository) Update(templateEntity *aggregates.TemplateEntity) (*aggregates.TemplateEntity, error) {
+func (r *templateEntityRepository) Update(templateEntity *aggregate.TemplateEntity) (*aggregate.TemplateEntity, error) {
 	entityTemplateEntity := entity.NewTemplateEntity(templateEntity)
 	updatedTemplateEntity, err := r.BaseRepository.Update(entityTemplateEntity)
 
@@ -101,7 +100,7 @@ func (r *templateEntityRepository) Update(templateEntity *aggregates.TemplateEnt
 		return nil, err
 	}
 
-	eventChannel := worker_channels.GetCRUDEventChannel()
+	eventChannel := worker_channel.GetCRUDEventChannel()
 	eventChannel <- updatedTemplateEntity.GetUpdatedEvent()
 
 	return updatedTemplateEntity.ToDomain(), err
@@ -112,7 +111,7 @@ func (r *templateEntityRepository) Delete(id string) error {
 	err := r.BaseRepository.Delete(id)
 	if err != nil {
 		entity := entity.TemplateEntity{ID: id}
-		eventChannel := worker_channels.GetCRUDEventChannel()
+		eventChannel := worker_channel.GetCRUDEventChannel()
 		eventChannel <- entity.GetUpdatedEvent()
 	}
 	return err

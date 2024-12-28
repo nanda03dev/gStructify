@@ -5,7 +5,7 @@ A Golang package designed to generate high-performance backend services using fa
 ## Features
 - Automatically generates backend code structure for Go projects.
 - Creates service folders with pre-configured Go modules.
-- Simplifies repetitive tasks in setting up backend services.
+- Simplifies repetitive tasks in setting up backend service.
 
 ## Project Structure
 
@@ -35,12 +35,12 @@ project/
 │   │   ├── infrastructure/
 │   │   │   ├── db/
 │   │   │   │   ├── db.go                # General Database connection
-│   │   │   │   └── postgres-db.go       # PostgreSQL connection logic
+│   │   │   │   └── sql-db.go            # SQL-DB connection logic
 │   │   │   ├── entity/
 │   │   │   │   ├── user.go               # MongoDB User entity
 │   │   │   ├── repository/
 │   │   │   │   ├── user_repository_impl.go  # MongoDB UserRepository implementation
-│   │   ├── interfaces/
+│   │   ├── interface/
 │   │   │   └── dto/
 │   │   │       ├── user_dto.go          # Request and Response DTO for User
 │   │   │   └── handlers/
@@ -96,10 +96,14 @@ go mod init user-ms
 Run the `gStructify` command with your desired entity name:
 ```bash
 gStructify -entity=user
+
+create file with name `gStructify.config.json` and entity details refer sample config file below
+note "key and values should be snake-case senstive"
+gStructify 
 ```
 
 This will:
-1. Generate a structured set of files for the `user` entity.
+1. Generate a structured set of files for the `user, order` entities.
 2. Populate the necessary Go files within the `user-ms` directory.
 
 ---

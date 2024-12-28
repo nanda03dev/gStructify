@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/nanda03dev/go-ms-template/src/common"
+	"github.com/nanda03dev/go-ms-template/src/core/domain/aggregate"
 	"gorm.io/gorm"
 )
 
@@ -20,7 +21,7 @@ type Event struct {
 }
 
 // Helper function: Converts an aggregate Event to an entity Event
-func NewEvent(event *aggregates.Event) *Event {
+func NewEvent(event *aggregate.Event) *Event {
 	return &Event{
 		ID:         event.ID,
 		EntityId:   event.EntityId,
@@ -36,8 +37,8 @@ func (e *Event) GetEntityName() common.EntityName {
 }
 
 // Helper function: Converts an entity Event to an aggregate Event
-func (e *Event) ToDomain() *aggregates.Event {
-	return &aggregates.Event{
+func (e *Event) ToDomain() *aggregate.Event {
+	return &aggregate.Event{
 		ID:         e.ID,
 		EntityId:   e.EntityId,
 		EntityName: e.EntityName,

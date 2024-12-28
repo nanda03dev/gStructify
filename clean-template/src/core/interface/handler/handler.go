@@ -1,9 +1,9 @@
-package handlers
+package handler
 
 import (
 	"sync"
 
-	"github.com/nanda03dev/go-ms-template/src/core/application/services"
+	"github.com/nanda03dev/go-ms-template/src/core/application/service"
 )
 
 type Handlers struct {
@@ -17,7 +17,7 @@ var (
 
 func GetHandlers() *Handlers {
 	HandlersOnce.Do(func() {
-		var AllServices = services.GetServices()
+		var AllServices = service.GetServices()
 		allHandlers = &Handlers{
 			TemplateEntityHandler: NewTemplateEntityHandler(AllServices.TemplateEntityService),
 		}

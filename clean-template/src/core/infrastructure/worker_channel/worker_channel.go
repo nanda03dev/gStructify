@@ -1,4 +1,4 @@
-package worker_channels
+package worker_channel
 
 import (
 	"log"

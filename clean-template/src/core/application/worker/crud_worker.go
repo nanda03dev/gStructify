@@ -1,24 +1,23 @@
-package workers
+package worker
 
 import (
 	"context"
 	"log"
 	"time"
 
-	"github.com/nanda03dev/go-ms-template/src/core/application/services"
-	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/worker_channels"
+	"github.com/nanda03dev/go-ms-template/src/core/application/service"
+	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/worker_channel"
 )
 
 // StartCRUDWorker listens to the CRUD channel and processes data
 func StartCRUDEventWorker(ctx context.Context) {
-	crudEventChannel := worker_channels.GetCRUDEventChannel()
+	crudEventChannel := worker_channel.GetCRUDEventChannel()
 	for {
 		select {
 		case event := <-crudEventChannel: // Listen to the channel
-			log.Println("Processing data:", event)
 			// Simulate processing, e.g., saving to database
 			if event.Config.EventStore {
-				AllServices := services.GetServices()
+				AllServices := service.GetServices()
 				AllServices.EventService.Create(event)
 			}
 			// Optional: Add any delay or logic as required
