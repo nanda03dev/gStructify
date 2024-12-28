@@ -14,7 +14,7 @@ type DatabaseInfo struct {
 }
 
 type Databases struct {
-	Postgres *PostgresDB
+	SqlDB *SqlDB
 }
 
 var (
@@ -42,14 +42,14 @@ func init() {
 
 func ConnectAll() *Databases {
 	once.Do(func() {
-		postgresDB, err := ConnectPostgresDB(DatabaseURI.DB_URI)
+		sqlDB, err := ConnectSqlDB(DatabaseURI.DB_URI)
 		if err != nil {
-			log.Fatalf("Could not connect to PostgreSQL: %v", err)
+			log.Fatalf("Could not connect to SQL Database: %v", err)
 		} else {
-			fmt.Println("successfully connected to PostgreSQL")
+			fmt.Println("successfully connected to SQL Database")
 		}
 		DatabaseConnection = &Databases{
-			Postgres: postgresDB,
+			SqlDB: sqlDB,
 		}
 	})
 
@@ -57,5 +57,5 @@ func ConnectAll() *Databases {
 }
 
 func (DatabaseConnection *Databases) DisconnectAll() {
-	DatabaseConnection.Postgres.Disconnect()
+	DatabaseConnection.SqlDB.Disconnect()
 }

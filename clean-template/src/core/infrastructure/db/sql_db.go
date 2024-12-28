@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type PostgresDB struct {
+type SqlDB struct {
 	DB *gorm.DB
 }
 
@@ -22,50 +22,44 @@ type MigrationMetadata struct {
 	ExecutedAt time.Time `gorm:"autoCreateTime"`
 }
 
-func ConnectPostgresDB(uri string) (*PostgresDB, error) {
-	postgresDB := &PostgresDB{}
-	err := postgresDB.Connect(uri)
+func ConnectSqlDB(uri string) (*SqlDB, error) {
+	sqlDB := &SqlDB{}
+	err := sqlDB.Connect(uri)
 	if err != nil {
 		return nil, err
 	}
 
-	// Enable PostGIS extension (if not already done)
-	err = postgresDB.DB.Exec("CREATE EXTENSION IF NOT EXISTS postgis;").Error
-	if err != nil {
-		log.Fatalf("failed to enable PostGIS: %v", err)
-	}
-
 	// Run model migrations before starting the application
-	if err := RunModelMigration(postgresDB.DB); err != nil {
+	if err := RunModelMigration(sqlDB.DB); err != nil {
 		log.Fatalf("Could not run model migrations: %v", err)
 	}
 
 	// Run raw migrations before starting the application
-	if err := RunRawMigration(postgresDB.DB); err != nil {
+	if err := RunRawMigration(sqlDB.DB); err != nil {
 		log.Fatalf("Could not run raw migrations: %v", err)
 	}
 
 	// Run raw migrations before starting the application
-	if err := RunSeedMigration(postgresDB.DB); err != nil {
+	if err := RunSeedMigration(sqlDB.DB); err != nil {
 		log.Fatalf("Could not run seed migrations: %v", err)
 	}
 
 	// Set connection configs
-	postgresDB.setConfigs()
+	sqlDB.setConfigs()
 
-	return postgresDB, nil
+	return sqlDB, nil
 }
 
-func (p *PostgresDB) Connect(uri string) error {
+func (p *SqlDB) Connect(uri string) error {
 	db, err := gorm.Open(postgres.Open(uri), &gorm.Config{})
 	if err != nil {
-		return fmt.Errorf("failed to connect to PostgreSQL: %w", err)
+		return fmt.Errorf("failed to connect to SQL Database: %w", err)
 	}
 	p.DB = db
 	return nil
 }
 
-func (p *PostgresDB) Disconnect() {
+func (p *SqlDB) Disconnect() {
 	db, err := p.DB.DB()
 	if err != nil {
 		log.Printf("Error getting raw database connection: %v", err)
@@ -74,7 +68,7 @@ func (p *PostgresDB) Disconnect() {
 	db.Close()
 }
 
-func (p *PostgresDB) Health() (string, bool) {
+func (p *SqlDB) Health() (string, bool) {
 	db, err := p.DB.DB()
 	if err != nil {
 		return "Failed to get raw database connection", false
@@ -84,13 +78,13 @@ func (p *PostgresDB) Health() (string, bool) {
 
 	err = db.Ping()
 	if err != nil {
-		return "PostgreSQL health check failed", false
+		return "SQL Database health check failed", false
 	} else {
-		return "PostgreSQL connection is healthy!", true
+		return "SQL Database connection is healthy!", true
 	}
 }
 
-func (p *PostgresDB) setConfigs() {
+func (p *SqlDB) setConfigs() {
 	// Get the generic database connection object `*sql.DB` to configure it
 	sqlDB, err := p.DB.DB()
 	if err != nil {

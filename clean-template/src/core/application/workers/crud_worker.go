@@ -15,7 +15,6 @@ func StartCRUDEventWorker(ctx context.Context) {
 	for {
 		select {
 		case event := <-crudEventChannel: // Listen to the channel
-			log.Println("Processing data:", event)
 			// Simulate processing, e.g., saving to database
 			if event.Config.EventStore {
 				AllServices := services.GetServices()

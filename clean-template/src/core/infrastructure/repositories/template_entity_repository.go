@@ -27,7 +27,7 @@ type templateEntityRepository struct {
 // NewTemplateEntityRepository initializes a new templateEntityRepository instance.
 func NewTemplateEntityRepository(databases *db.Databases) TemplateEntityRepository {
 	return &templateEntityRepository{
-		BaseRepository: NewBaseRepository[entity.TemplateEntity](databases.Postgres.DB), // Initialize BaseRepository with the entity.TemplateEntity type
+		BaseRepository: NewBaseRepository[entity.TemplateEntity](databases.SqlDB.DB), // Initialize BaseRepository with the entity.TemplateEntity type
 	}
 }
 
