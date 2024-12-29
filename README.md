@@ -67,44 +67,110 @@ project/
 - Go 1.XX or higher
 - Dependencies specified in `go.mod`
 
-## Installation
+## Step 1: Install gStructify
 
-To install `gStructify`, run the following command:
+Run the following command to install gStructify:
 
 ```bash
 go install github.com/nanda03dev/gStructify@latest
 ```
 
-## Usage
+## Step 2: Create Your Project Directory
 
-Follow these steps to generate entries for your Go microservice:
+Create and navigate to your project directory:
 
-### Step 1: Create a Microservice Directory
-Create a directory for your microservice:
 ```bash
-mkdir user-ms
+mkdir my-microservice
+cd my-microservice
 ```
 
-### Step 2: Initialize a Go Module
-Navigate to the directory and initialize a `go.mod` file:
+## Step 3: Initialize Your Go Module
+
+Initialize a new Go module for your project:
+
 ```bash
-cd user-ms
-go mod init user-ms
+go mod init my-microservice
 ```
 
-### Step 3: Run the Generator Command
-Run the `gStructify` command with your desired entity name:
+## Step 4: Generate Service Code
+
+Run `gStructify` to automatically create your service structure:
+
 ```bash
 gStructify -entity=user
-
-create file with name `gStructify.config.json` and entity details refer sample config file below
-note "key and values should be snake-case senstive"
-gStructify 
 ```
+
+By default, gStructify will generate the entire structure for one entity with only an `id` field. For more advanced setups, you can define multiple entities and their fields in a configuration file, as explained in Step 5.
+
+## Step 5: Configure Your Entities
+
+To customize the generated code, create a `gStructify.config.json` file in your project directory. Define your entities and their fields as shown below:
+
+```json
+{
+    "entities": [
+        {
+            "entity_name": "user",
+            "fields": [
+                { "field_name": "id", "type": "string" },
+                { "field_name": "email", "type": "string" }
+            ]
+        },
+        {
+            "entity_name": "order",
+            "fields": [
+                { "field_name": "id", "type": "string" },
+                { "field_name": "user_id", "type": "string" },
+                { "field_name": "order_amount", "type": "int" }
+            ]
+        }
+    ]
+}
+
+```
+
+### Notes:
+1. The fields in the configuration file should be defined using `snake_case`.
+2. Both keys and values in the configuration file are case-sensitive.
+3. You can directly use Go data types (e.g., `string`, `int`, `float64`, etc.) in the field definitions.
+
+Once you’ve added fields in the configuration file, Run gStructify. 
+
+Run `gStructify` to automatically create your service structure:
+
+```bash
+gStructify
+```
+
+it will generate files with all the specified fields included and create CRUD APIs for those entities.
 
 This will:
 1. Generate a structured set of files for the `user, order` entities.
 2. Populate the necessary Go files within the `user-ms` directory.
+
+## Step 6: Run the Application
+
+If you have a URL for the SQL database, you can add it in the `.env` file under the `SQL_DB_URI` variable. Alternatively, if you want to run the database locally using Docker, follow these steps:
+
+1. Start the PostgreSQL database:
+
+   ```bash
+   make run-sql-db
+   ```
+
+   This command will start the PostgreSQL database in detached mode.
+
+2. Run the application locally:
+
+   ```bash
+   make run-dev
+   ```
+
+   This command will start the application on your local machine.
+   
+Once the application is running, you can start executing the generated APIs for your entities.
+
+Now you're ready to build efficient and scalable Go backend services with gStructify. 🚀
 
 ---
 
@@ -122,4 +188,3 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 - [Clean Architecture by Robert C. Martin](https://www.oreilly.com/library/view/clean-architecture-a/9780134494166/)
 - [Golang Documentation](https://golang.org/doc/)
-```

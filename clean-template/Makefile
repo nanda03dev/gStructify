@@ -4,5 +4,5 @@ run: build
 	./ms-name
 dev:
 	go run main.go
-run-db:
-	docker-compose -f docker-compose.db.yml up -d
+run-sql-db:
+	docker-compose -f docker-compose.sql.db.yml up -d
