@@ -83,7 +83,8 @@ Create and navigate to your project directory:
 mkdir my-microservice
 cd my-microservice
 ```
-> **Note:** In this example, the project is named `my-microservice`. You can define your own service name.
+
+*Example: I have defined `my-microservice` as the project name; you can define your service name as needed.*
 
 ## Step 3: Initialize Your Go Module
 
@@ -95,15 +96,13 @@ go mod init my-microservice
 
 ## Step 4: Generate Service Code
 
-Run `gStructify` to automatically create your service structure for a specific entity:
+Run `gStructify` to automatically create your service structure:
 
 ```bash
 gStructify -entity=user
 ```
 
-By default, gStructify will generate the entire structure for one entity with only an `id` field. 
-
-For more advanced setups, you can define multiple entities and their fields in a configuration file, as explained in Step 5.
+By default, gStructify will generate the entire structure for one entity with only an `id` field. For more advanced setups, you can define multiple entities and their fields in a configuration file, as explained in Step 5.
 
 ## Step 5: Configure Your Entities
 
@@ -136,23 +135,21 @@ To customize the generated code, create a `gStructify.config.json` file in your 
 2. Both keys and values in the configuration file are case-sensitive.
 3. You can directly use Go data types (e.g., `string`, `int`, `float64`, etc.) in the field definitions.
 
-Once you’ve added fields in the configuration file, run `gStructify` without any additional arguments:
+Once you’ve added fields in the configuration file, run gStructify:
 
 ```bash
 gStructify
 ```
 
+It will generate files with all the specified fields included and create CRUD APIs for those entities.
+
 This will:
-1. Generate a structured set of files for the `user` and `order` entities.
-2. Populate the necessary Go files for your application, ready for development.
+1. Generate a structured set of files for the `user, order` entities.
+2. Populate the necessary Go files within the `my-microservice` directory.
 
 ## Step 6: Run the Application
 
-### Option 1: Using an Existing SQL Database
-If you have a URL for the SQL database, you can add it in the `.env` file under the `SQL_DB_URI` variable.
-
-### Option 2: Running a Local Database with Docker
-To run the database locally, follow these steps:
+If you have a URL for the SQL database, you can add it in the `.env` file under the `SQL_DB_URI` variable. Alternatively, if you want to run the database locally using Docker, follow these steps:
 
 1. Start the PostgreSQL database:
 
@@ -170,9 +167,16 @@ To run the database locally, follow these steps:
 
    This command will start the application on your local machine.
 
-### Final Step: Execute the APIs
----
-Once the application is running, you can start executing the generated CRUD APIs for your entities.
+### Application Details:
+- The application will start on **port 3000**.
+
+### Available CRUD APIs:
+- **Create**: `POST /api/v1/user`
+- **Read**: `GET /api/v1/user/USERID`
+- **Update**: `PUT /api/v1/user/USERID`
+- **Delete**: `DELETE /api/v1/user/USERID`
+
+Once the application is running, you can start executing the generated APIs for your entities.
 
 Now you're ready to build efficient and scalable Go backend services with gStructify. 🚀
 
