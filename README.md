@@ -11,42 +11,42 @@ A Golang package designed to generate high-performance backend services using fa
 
 ```
 project/
-├── sql-migrations/                      # Migration scripts for PostgreSQL
+├── sql-migrations/                          # Migration scripts for PostgreSQL
 │   ├── seed/     
 │   │   └── init-seed.sql   
 │   ├── sql/     
 │   │   └── init.sql
-├── main.go                              # Application entry point
+├── main.go                                  # Application entry point
 ├── go.mod
-├── src/                                 # Source code folder
-│   ├── bootstrap/                       # Central module initialization
+├── src/                                     # Source code folder
+│   ├── bootstrap/                           # Central module initialization
 │   │   └── bootstrap.go               
-│   ├── common/                          # Common utility functions
-│   │   ├── constants.go                 # UUID generator
-│   ├── core/                            # Contains all the layers
+│   ├── common/                              # Common utility functions
+│   │   ├── constants.go                     # UUID generator
+│   ├── core/                                # Contains all the layers
 │   │   ├── domain/
 │   │   │   └── aggregates/
-│   │   │       ├── user.go              # Business logic for User (Domain model)
+│   │   │       ├── user.go                  # Business logic for User (Domain model)
 │   │   ├── application/
 │   │   │   └── service/
-│   │   │       ├── user_service.go      # Business logic for User
+│   │   │       ├── user_service.go          # Business logic for User
 │   │   │   └── workers/
-│   │   │       ├── worker.go            # Background worker
+│   │   │       ├── worker.go                # Background worker
 │   │   ├── infrastructure/
 │   │   │   ├── db/
-│   │   │   │   ├── db.go                # General Database connection
-│   │   │   │   └── sql-db.go            # SQL-DB connection logic
+│   │   │   │   ├── db.go                    # General Database connection
+│   │   │   │   └── sql-db.go                # SQL-DB connection logic
 │   │   │   ├── entity/
-│   │   │   │   ├── user.go               # MongoDB User entity
+│   │   │   │   ├── user.go                  # User entity
 │   │   │   ├── repository/
-│   │   │   │   ├── user_repository_impl.go  # MongoDB UserRepository implementation
+│   │   │   │   ├── user_repository_impl.go  # UserRepository implementation
 │   │   ├── interface/
 │   │   │   └── dto/
-│   │   │       ├── user_dto.go          # Request and Response DTO for User
+│   │   │       ├── user_dto.go              # Request and Response DTO for User
 │   │   │   └── handlers/
-│   │   │       ├── user_handler.go      # HTTP handler for User
-│   ├── helpers/                         # Additional utility functions 
-│   │   ├── string_helpers.go            # String manipulation helpers
+│   │   │       ├── user_handler.go          # HTTP handler for User
+│   ├── helpers/                             # Additional utility functions 
+│   │   ├── string_helpers.go                # String manipulation helpers
 
 ```
 
@@ -67,46 +67,114 @@ project/
 - Go 1.XX or higher
 - Dependencies specified in `go.mod`
 
-## Installation
+## Step 1: Install gStructify
 
-To install `gStructify`, run the following command:
+Run the following command to install gStructify:
 
 ```bash
 go install github.com/nanda03dev/gStructify@latest
 ```
 
-## Usage
+## Step 2: Create Your Project Directory
 
-Follow these steps to generate entries for your Go microservice:
+Create and navigate to your project directory:
 
-### Step 1: Create a Microservice Directory
-Create a directory for your microservice:
 ```bash
-mkdir user-ms
+mkdir my-microservice
+cd my-microservice
+```
+> **Note:** In this example, the project is named `my-microservice`. You can define your own service name.
+
+## Step 3: Initialize Your Go Module
+
+Initialize a new Go module for your project:
+
+```bash
+go mod init my-microservice
 ```
 
-### Step 2: Initialize a Go Module
-Navigate to the directory and initialize a `go.mod` file:
-```bash
-cd user-ms
-go mod init user-ms
-```
+## Step 4: Generate Service Code
 
-### Step 3: Run the Generator Command
-Run the `gStructify` command with your desired entity name:
+Run `gStructify` to automatically create your service structure for a specific entity:
+
 ```bash
 gStructify -entity=user
+```
 
-create file with name `gStructify.config.json` and entity details refer sample config file below
-note "key and values should be snake-case senstive"
-gStructify 
+By default, gStructify will generate the entire structure for one entity with only an `id` field. 
+
+For more advanced setups, you can define multiple entities and their fields in a configuration file, as explained in Step 5.
+
+## Step 5: Configure Your Entities
+
+To customize the generated code, create a `gStructify.config.json` file in your project directory. Define your entities and their fields as shown below:
+
+```json
+{
+    "entities": [
+        {
+            "entity_name": "user",
+            "fields": [
+                { "field_name": "id", "type": "string" },
+                { "field_name": "email", "type": "string" }
+            ]
+        },
+        {
+            "entity_name": "order",
+            "fields": [
+                { "field_name": "id", "type": "string" },
+                { "field_name": "user_id", "type": "string" },
+                { "field_name": "order_amount", "type": "int" }
+            ]
+        }
+    ]
+}
+```
+
+### Notes:
+1. The fields in the configuration file should be defined using `snake_case`.
+2. Both keys and values in the configuration file are case-sensitive.
+3. You can directly use Go data types (e.g., `string`, `int`, `float64`, etc.) in the field definitions.
+
+Once you’ve added fields in the configuration file, run `gStructify` without any additional arguments:
+
+```bash
+gStructify
 ```
 
 This will:
-1. Generate a structured set of files for the `user, order` entities.
-2. Populate the necessary Go files within the `user-ms` directory.
+1. Generate a structured set of files for the `user` and `order` entities.
+2. Populate the necessary Go files for your application, ready for development.
 
+## Step 6: Run the Application
+
+### Option 1: Using an Existing SQL Database
+If you have a URL for the SQL database, you can add it in the `.env` file under the `SQL_DB_URI` variable.
+
+### Option 2: Running a Local Database with Docker
+To run the database locally, follow these steps:
+
+1. Start the PostgreSQL database:
+
+   ```bash
+   make run-sql-db
+   ```
+
+   This command will start the PostgreSQL database in detached mode.
+
+2. Run the application locally:
+
+   ```bash
+   make run-dev
+   ```
+
+   This command will start the application on your local machine.
+
+### Final Step: Execute the APIs
 ---
+Once the application is running, you can start executing the generated CRUD APIs for your entities.
+
+Now you're ready to build efficient and scalable Go backend services with gStructify. 🚀
 
 Happy coding with `gStructify`!
 
@@ -122,4 +190,3 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 - [Clean Architecture by Robert C. Martin](https://www.oreilly.com/library/view/clean-architecture-a/9780134494166/)
 - [Golang Documentation](https://golang.org/doc/)
-```

@@ -10,7 +10,7 @@ import (
 )
 
 type DatabaseInfo struct {
-	DB_URI string
+	SQL_DB_URI string
 }
 
 type Databases struct {
@@ -27,22 +27,22 @@ func init() {
 	err := godotenv.Load()
 
 	DatabaseURI = DatabaseInfo{
-		DB_URI: "postgres://gtest:gtest@localhost/primary-db?sslmode=disable",
+		SQL_DB_URI: "postgres://gtest:gtest@localhost/primary-db?sslmode=disable",
 	}
 
 	if err != nil {
 		log.Println("No .env file found")
 	}
 
-	if DB_URI := os.Getenv("DB_URI"); DB_URI != "" {
-		DatabaseURI.DB_URI = DB_URI
+	if SQL_DB_URI := os.Getenv("SQL_DB_URI"); SQL_DB_URI != "" {
+		DatabaseURI.SQL_DB_URI = SQL_DB_URI
 	}
 
 }
 
 func ConnectAll() *Databases {
 	once.Do(func() {
-		sqlDB, err := ConnectSqlDB(DatabaseURI.DB_URI)
+		sqlDB, err := ConnectSqlDB(DatabaseURI.SQL_DB_URI)
 		if err != nil {
 			log.Fatalf("Could not connect to SQL Database: %v", err)
 		} else {
