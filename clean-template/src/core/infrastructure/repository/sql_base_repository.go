@@ -9,18 +9,18 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-// BaseRepository defines CRUD operations for any entity type.
-type BaseRepository[T any] struct {
+// SqlBaseRepository defines CRUD operations for any entity type.
+type SqlBaseRepository[T any] struct {
 	db *gorm.DB
 }
 
-// NewBaseRepository initializes a new BaseRepository.
-func NewBaseRepository[T any](db *gorm.DB) *BaseRepository[T] {
-	return &BaseRepository[T]{db: db}
+// NewSqlBaseRepository initializes a new SqlBaseRepository.
+func NewSqlBaseRepository[T any](db *gorm.DB) *SqlBaseRepository[T] {
+	return &SqlBaseRepository[T]{db: db}
 }
 
 // Create inserts a new record into the database.
-func (r *BaseRepository[T]) Create(entity *T) (*T, error) {
+func (r *SqlBaseRepository[T]) Create(entity *T) (*T, error) {
 	if err := r.db.Create(entity).Error; err != nil {
 		return nil, fmt.Errorf("failed to create record: %w", err)
 	}
@@ -29,7 +29,7 @@ func (r *BaseRepository[T]) Create(entity *T) (*T, error) {
 }
 
 // Bulk inserts a new record into the database.
-func (r *BaseRepository[T]) BulkCreate(entities []*T) ([]*T, error) {
+func (r *SqlBaseRepository[T]) BulkCreate(entities []*T) ([]*T, error) {
 	if err := r.db.Create(entities).Error; err != nil {
 		return nil, fmt.Errorf("failed to create record: %w", err)
 	}
@@ -38,7 +38,7 @@ func (r *BaseRepository[T]) BulkCreate(entities []*T) ([]*T, error) {
 }
 
 // FindById retrieves a record by its ID.
-func (r *BaseRepository[T]) FindById(id string) (*T, error) {
+func (r *SqlBaseRepository[T]) FindById(id string) (*T, error) {
 	var entity T
 	if err := r.db.First(&entity, "id = ?", id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -50,7 +50,7 @@ func (r *BaseRepository[T]) FindById(id string) (*T, error) {
 }
 
 // FindById retrieves a record by its ID.
-func (r *BaseRepository[T]) FindByIdWithRelation(id string, preloadRelations []string) (*T, error) {
+func (r *SqlBaseRepository[T]) FindByIdWithRelation(id string, preloadRelations []string) (*T, error) {
 	var entity T
 	query := r.db.Model(&entity)
 
@@ -70,7 +70,7 @@ func (r *BaseRepository[T]) FindByIdWithRelation(id string, preloadRelations []s
 }
 
 // FindWithFilter retrieves records based on filters, sorting, limit, and skip for pagination
-func (r *BaseRepository[T]) FindWithFilter(filterQuery common.FilterQuery) ([]*T, error) {
+func (r *SqlBaseRepository[T]) FindWithFilter(filterQuery common.FilterQuery) ([]*T, error) {
 	var results []*T
 
 	// Fetch valid columns for the table corresponding to model T
@@ -155,7 +155,7 @@ func (r *BaseRepository[T]) FindWithFilter(filterQuery common.FilterQuery) ([]*T
 }
 
 // Update modifies an existing record in the database.
-func (r *BaseRepository[T]) Update(entity *T) (*T, error) {
+func (r *SqlBaseRepository[T]) Update(entity *T) (*T, error) {
 	if err := r.db.Save(entity).Error; err != nil {
 		return nil, fmt.Errorf("failed to update record: %w", err)
 	}
@@ -163,7 +163,7 @@ func (r *BaseRepository[T]) Update(entity *T) (*T, error) {
 }
 
 // Delete removes a record by its ID.
-func (r *BaseRepository[T]) Delete(id string) error {
+func (r *SqlBaseRepository[T]) Delete(id string) error {
 	var entity T
 	if err := r.db.Delete(&entity, "id = ?", id).Error; err != nil {
 		return fmt.Errorf("failed to delete record: %w", err)

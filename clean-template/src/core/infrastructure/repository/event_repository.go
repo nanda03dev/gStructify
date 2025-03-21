@@ -2,11 +2,6 @@ package repository
 
 import (
 	"fmt"
-
-	"github.com/nanda03dev/go-ms-template/src/common"
-	"github.com/nanda03dev/go-ms-template/src/core/domain/aggregate"
-	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/db"
-	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/entity"
 )
 
 type EventRepository interface {
@@ -19,34 +14,34 @@ type EventRepository interface {
 
 // eventRepository implements the EventRepository interface.
 type eventRepository struct {
-	*BaseRepository[entity.Event] // Embeds BaseRepository for CRUD operations
+	*SqlBaseRepository[entity.Event] // Embeds SqlBaseRepository for CRUD operations
 }
 
 // NewEventRepository initializes a new eventRepository instance.
 func NewEventRepository(databases *db.Databases) EventRepository {
 	return &eventRepository{
-		BaseRepository: NewBaseRepository[entity.Event](databases.SqlDB.DB), // Initialize BaseRepository with the entity.Event type
+		SqlBaseRepository: NewSqlBaseRepository[entity.Event](databases.SqlDB.DB), // Initialize SqlBaseRepository with the entity.Event type
 	}
 }
 
 // Create inserts a new event.
 func (r *eventRepository) Create(event *aggregate.Event) (*aggregate.Event, error) {
 	entityEvent := r.toEntity(event)
-	createdEvent, err := r.BaseRepository.Create(entityEvent)
+	createdEvent, err := r.SqlBaseRepository.Create(entityEvent)
 
 	return r.toDomain(createdEvent), err
 }
 
 // FindById retrieves a event by its ID.
 func (r *eventRepository) FindById(id string) (*aggregate.Event, error) {
-	entityEvent, err := r.BaseRepository.FindById(id)
+	entityEvent, err := r.SqlBaseRepository.FindById(id)
 	return r.toDomain(entityEvent), err
 }
 
 // FindWithFilter retrieves a event by .
 func (r *eventRepository) FindWithFilter(filterQuery common.FilterQuery) ([]*aggregate.Event, error) {
 
-	events, err := r.BaseRepository.FindWithFilter(filterQuery)
+	events, err := r.SqlBaseRepository.FindWithFilter(filterQuery)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find events by name: %w", err)
 	}
@@ -63,14 +58,14 @@ func (r *eventRepository) FindWithFilter(filterQuery common.FilterQuery) ([]*agg
 // Update modifies an existing event.
 func (r *eventRepository) Update(event *aggregate.Event) (*aggregate.Event, error) {
 	entityEvent := r.toEntity(event)
-	updatedEvent, err := r.BaseRepository.Update(entityEvent)
+	updatedEvent, err := r.SqlBaseRepository.Update(entityEvent)
 
 	return r.toDomain(updatedEvent), err
 }
 
 // Delete removes a event by its ID.
 func (r *eventRepository) Delete(id string) error {
-	err := r.BaseRepository.Delete(id)
+	err := r.SqlBaseRepository.Delete(id)
 	return err
 }
 

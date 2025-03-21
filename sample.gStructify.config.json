@@ -1,6 +1,7 @@
 {
     "entities": [
         {
+            "database": "mongo",
             "entity_name": "user",
             "fields": [
                 {
@@ -18,6 +19,7 @@
             ]
         },
         {
+            "database": "sql",
             "entity_name": "order",
             "fields": [
                 {
@@ -35,6 +37,7 @@
             ]
         },
         {
+            "database": "sql",
             "entity_name": "item",
             "fields": [
                 {

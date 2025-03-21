@@ -10,11 +10,13 @@ import (
 )
 
 type DatabaseInfo struct {
-	SQL_DB_URI string
+	SQL_DB_URI   string
+	MONGO_DB_URI string
 }
 
 type Databases struct {
-	SqlDB *SqlDB
+	SqlDB   *SqlDB
+	MongoDB *MongoDB
 }
 
 var (
@@ -27,7 +29,8 @@ func init() {
 	err := godotenv.Load()
 
 	DatabaseURI = DatabaseInfo{
-		SQL_DB_URI: "postgres://gtest:gtest@localhost/primary-db?sslmode=disable",
+		MONGO_DB_URI: "mongodb://localhost:27017",
+		SQL_DB_URI:   "postgres://gtest:gtest@host.docker.internal:5432/primary-db?sslmode=disable",
 	}
 
 	if err != nil {
@@ -38,6 +41,9 @@ func init() {
 		DatabaseURI.SQL_DB_URI = SQL_DB_URI
 	}
 
+	if MONGO_DB_URI := os.Getenv("MONGO_DB_URI"); MONGO_DB_URI != "" {
+		DatabaseURI.MONGO_DB_URI = MONGO_DB_URI
+	}
 }
 
 func ConnectAll() *Databases {
@@ -48,8 +54,18 @@ func ConnectAll() *Databases {
 		} else {
 			fmt.Println("successfully connected to SQL Database")
 		}
+
+		mongoDB, err := ConnectMongoDB(DatabaseURI.MONGO_DB_URI)
+
+		if err != nil {
+			log.Fatalf("Could not connect to MongoDB: %v", err)
+		} else {
+			fmt.Println("successfully connected to MongoDB")
+		}
+
 		DatabaseConnection = &Databases{
-			SqlDB: sqlDB,
+			SqlDB:   sqlDB,
+			MongoDB: mongoDB,
 		}
 	})
 

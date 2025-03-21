@@ -16,6 +16,7 @@ type Field struct {
 }
 
 type Entity struct {
+	Database   string  `json:"database"`
 	EntityName string  `json:"entity_name"`
 	Fields     []Field `json:"fields"`
 }
@@ -35,14 +36,17 @@ func getUpdatedConfig(entityName string, config Config) Config {
 	}
 
 	if !isAlreadyExists {
-		config.Entities = append(config.Entities, Entity{EntityName: entityName, Fields: []Field{}})
+		config.Entities = []Entity{{Database: "sql", EntityName: entityName, Fields: []Field{}}}
 	}
 
 	for index, eachEntity := range config.Entities {
+		if eachEntity.Database == "" {
+			eachEntity.Database = "sql"
+		}
 		if len(eachEntity.Fields) < 1 {
 			eachEntity.Fields = []Field{{FieldName: "id"}}
-			config.Entities[index] = eachEntity
 		}
+		config.Entities[index] = eachEntity
 	}
 
 	return config
@@ -197,8 +201,22 @@ func replaceEntityName(content string, entity Entity) string {
 
 func replaceFileName(pathName string, entity Entity) string {
 	entity_name := CamelToSnake(entity.EntityName)
+
+	pathName = strings.ReplaceAll(pathName, "template_entity_aggregate_mongo", entity_name)
+	pathName = strings.ReplaceAll(pathName, "template_entity_aggregate_rdbms", entity_name)
+
+	pathName = strings.ReplaceAll(pathName, "template_entity_collection_mongo", entity_name)
+	pathName = strings.ReplaceAll(pathName, "template_entity_table_rdbms", entity_name)
+
+	pathName = strings.ReplaceAll(pathName, "template_entity_repository_mongo", entity_name+"_repository")
+	pathName = strings.ReplaceAll(pathName, "template_entity_repository_rdbms", entity_name+"_repository")
+
+	pathName = strings.ReplaceAll(pathName, "template_entity_mongo", entity_name)
+	pathName = strings.ReplaceAll(pathName, "template_entity_rdbms", entity_name)
+
 	pathName = strings.ReplaceAll(pathName, "template_entity", entity_name)
 	pathName = strings.ReplaceAll(pathName, "EPOCH", GetEpoch())
+
 	return pathName
 }
 
