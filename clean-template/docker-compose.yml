@@ -46,6 +46,7 @@ services:
 
 volumes:
   postgres-data:
+  mongo-data:
 
 
 networks:

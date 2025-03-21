@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-//go:embed clean-template/**
+//go:embed clean-template/*
 var cleanTemplate embed.FS
 var msName string
 
@@ -87,11 +87,8 @@ func copyDirAndModify(efs embed.FS, srcDir, destDir, packageName string, entity 
 	if err != nil {
 		return err // Return the error if the directory can't be read
 	}
-	fmt.Println("--------------------------------------------------")
-	fmt.Println("Database - ", entity.Database, "  entries-", entries)
 
 	for _, entry := range entries {
-		fmt.Println("Database - ", entity.Database, "  entry-", entry.Name())
 
 		// Construct the source and destination paths for the current entry
 		srcPath := filepath.Join(srcDir, entry.Name())
@@ -129,21 +126,21 @@ func copyDirAndModify(efs embed.FS, srcDir, destDir, packageName string, entity 
 
 				skipFiles := map[string]map[string]bool{
 					"sql": {
-						"template_entity_aggregate_mongo.go":  true,
-						"template_entity_collection_mongo.go": true,
-						"template_entity_repository_mongo.go": true,
-						"template_entity_mongo.go":            true,
+						"mongo_template_entity_aggregate.go":  true,
+						"mongo_template_entity_collection.go": true,
+						"mongo_template_entity_repository.go": true,
+						"mongo_template_entity.go":            true,
 					},
 					"mongo": {
-						"template_entity_aggregate_rdbms.go":  true,
-						"template_entity_table_rdbms.go":      true,
-						"template_entity_repository_rdbms.go": true,
-						"template_entity_rdbms.go":            true,
+						"sql_template_entity_aggregate.go":  true,
+						"sql_template_entity_table.go":      true,
+						"sql_template_entity_repository.go": true,
+						"sql_template_entity.go":            true,
 					},
 				}
 
 				if files, exists := skipFiles[entity.Database]; exists && files[entry.Name()] {
-					return nil
+					continue
 				}
 
 				// Rename the file if it contains "template_entity" in its name

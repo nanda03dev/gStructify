@@ -202,17 +202,17 @@ func replaceEntityName(content string, entity Entity) string {
 func replaceFileName(pathName string, entity Entity) string {
 	entity_name := CamelToSnake(entity.EntityName)
 
-	pathName = strings.ReplaceAll(pathName, "template_entity_aggregate_mongo", entity_name)
-	pathName = strings.ReplaceAll(pathName, "template_entity_aggregate_rdbms", entity_name)
+	pathName = strings.ReplaceAll(pathName, "mongo_template_entity_aggregate", entity_name)
+	pathName = strings.ReplaceAll(pathName, "sql_template_entity_aggregate", entity_name)
 
-	pathName = strings.ReplaceAll(pathName, "template_entity_collection_mongo", entity_name)
-	pathName = strings.ReplaceAll(pathName, "template_entity_table_rdbms", entity_name)
+	pathName = strings.ReplaceAll(pathName, "mongo_template_entity_collection", entity_name)
+	pathName = strings.ReplaceAll(pathName, "sql_template_entity_table", entity_name)
 
-	pathName = strings.ReplaceAll(pathName, "template_entity_repository_mongo", entity_name+"_repository")
-	pathName = strings.ReplaceAll(pathName, "template_entity_repository_rdbms", entity_name+"_repository")
+	pathName = strings.ReplaceAll(pathName, "mongo_template_entity_repository", entity_name+"_repository")
+	pathName = strings.ReplaceAll(pathName, "sql_template_entity_repository", entity_name+"_repository")
 
-	pathName = strings.ReplaceAll(pathName, "template_entity_mongo", entity_name)
-	pathName = strings.ReplaceAll(pathName, "template_entity_rdbms", entity_name)
+	pathName = strings.ReplaceAll(pathName, "mongo_template_entity", entity_name)
+	pathName = strings.ReplaceAll(pathName, "sql_template_entity", entity_name)
 
 	pathName = strings.ReplaceAll(pathName, "template_entity", entity_name)
 	pathName = strings.ReplaceAll(pathName, "EPOCH", GetEpoch())
