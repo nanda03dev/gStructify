@@ -41,7 +41,7 @@ func (m *mockTemplateEntityRepository) Delete(id string) error {
 	return args.Error(0)
 }
 
-func TestCreateTemplateEntity(t *testing.T) {
+func TestTemplateEntity_Create(t *testing.T) {
 	mockRepo := new(mockTemplateEntityRepository)
 	service := NewTemplateEntityService(mockRepo)
 
@@ -56,7 +56,7 @@ func TestCreateTemplateEntity(t *testing.T) {
 	mockRepo.AssertExpectations(t)
 }
 
-func TestGetById(t *testing.T) {
+func TestTemplateEntity_FindById(t *testing.T) {
 	mockRepo := new(mockTemplateEntityRepository)
 	service := NewTemplateEntityService(mockRepo)
 
@@ -69,7 +69,7 @@ func TestGetById(t *testing.T) {
 	mockRepo.AssertExpectations(t)
 }
 
-func TestFindWithFilter(t *testing.T) {
+func TestTemplateEntity_FindWithFilter(t *testing.T) {
 	mockRepo := new(mockTemplateEntityRepository)
 	service := NewTemplateEntityService(mockRepo)
 
@@ -84,7 +84,7 @@ func TestFindWithFilter(t *testing.T) {
 	mockRepo.AssertExpectations(t)
 }
 
-func TestUpdateTemplateEntity(t *testing.T) {
+func TestTemplateEntity_Update(t *testing.T) {
 	mockRepo := new(mockTemplateEntityRepository)
 	service := NewTemplateEntityService(mockRepo)
 
@@ -99,7 +99,7 @@ func TestUpdateTemplateEntity(t *testing.T) {
 	mockRepo.AssertExpectations(t)
 }
 
-func TestDeleteTemplateEntity(t *testing.T) {
+func TestTemplateEntity_Delete(t *testing.T) {
 	mockRepo := new(mockTemplateEntityRepository)
 	service := NewTemplateEntityService(mockRepo)
 
