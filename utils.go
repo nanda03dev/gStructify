@@ -18,6 +18,7 @@ type Field struct {
 type Entity struct {
 	Database   string  `json:"database"`
 	EntityName string  `json:"entity_name"`
+	Test       bool    `json:"test"`
 	Fields     []Field `json:"fields"`
 }
 
@@ -36,7 +37,7 @@ func getUpdatedConfig(entityName string, config Config) Config {
 	}
 
 	if !isAlreadyExists {
-		config.Entities = []Entity{{Database: "sql", EntityName: entityName, Fields: []Field{}}}
+		config.Entities = []Entity{{Database: "sql", EntityName: entityName, Fields: []Field{}, Test: false}}
 	}
 
 	for index, eachEntity := range config.Entities {

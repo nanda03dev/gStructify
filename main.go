@@ -126,10 +126,11 @@ func copyDirAndModify(efs embed.FS, srcDir, destDir, packageName string, entity 
 
 				skipFiles := map[string]map[string]bool{
 					"sql": {
-						"mongo_template_entity_aggregate.go":  true,
-						"mongo_template_entity_collection.go": true,
-						"mongo_template_entity_repository.go": true,
-						"mongo_template_entity.go":            true,
+						"mongo_template_entity_aggregate.go":       true,
+						"mongo_template_entity_collection.go":      true,
+						"mongo_template_entity_repository.go":      true,
+						"mongo_template_entity_repository_test.go": true,
+						"mongo_template_entity.go":                 true,
 					},
 					"mongo": {
 						"sql_template_entity_aggregate.go":       true,
@@ -141,6 +142,16 @@ func copyDirAndModify(efs embed.FS, srcDir, destDir, packageName string, entity 
 				}
 
 				if files, exists := skipFiles[entity.Database]; exists && files[entry.Name()] {
+					continue
+				}
+
+				testFiles := map[string]bool{
+					"sql_template_entity_repository_test.go":   true,
+					"mongo_template_entity_repository_test.go": true,
+					"template_entity_service_test.go":          true,
+				}
+
+				if !entity.Test && testFiles[entry.Name()] {
 					continue
 				}
 
