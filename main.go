@@ -149,6 +149,7 @@ func copyDirAndModify(efs embed.FS, srcDir, destDir, packageName string, entity 
 					"sql_template_entity_repository_test.go":   true,
 					"mongo_template_entity_repository_test.go": true,
 					"template_entity_service_test.go":          true,
+					"template_entity_handler_test.go":          true,
 				}
 
 				if !entity.Test && testFiles[entry.Name()] {
