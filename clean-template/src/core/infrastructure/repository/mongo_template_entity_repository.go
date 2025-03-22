@@ -1,10 +1,8 @@
 package repository
 
 import (
-	"context"
 	"fmt"
 
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -19,20 +17,20 @@ type TemplateEntityRepository interface {
 
 // templateEntityRepository implements the TemplateEntityRepository interface using MongoBaseRepository.
 type templateEntityRepository struct {
-	*MongoBaseRepository[entity.TemplateEntity] // Embeds MongoBaseRepository for CRUD operations
+	baseRepo MongoRepository[entity.TemplateEntity] // Embeds MongoBaseRepository for CRUD operations
 }
 
 // NewTemplateEntityRepository initializes a new templateEntityRepository instance.
 func NewTemplateEntityRepository(databases *db.Databases) TemplateEntityRepository {
 	return &templateEntityRepository{
-		MongoBaseRepository: NewMongoBaseRepository[entity.TemplateEntity](databases.MongoDB.DB, "templateEntitys"), // MongoDB collection name
+		baseRepo: NewMongoBaseRepository[entity.TemplateEntity](databases.MongoDB.DB, "templateEntitys"), // MongoDB collection name
 	}
 }
 
 // Create inserts a new templateEntity.
 func (r *templateEntityRepository) Create(templateEntity *aggregate.TemplateEntity) (*aggregate.TemplateEntity, error) {
 	entityTemplateEntity := entity.NewTemplateEntity(templateEntity)
-	createdTemplateEntity, err := r.MongoBaseRepository.Create(context.TODO(), entityTemplateEntity)
+	createdTemplateEntity, err := r.baseRepo.Create(entityTemplateEntity)
 
 	if err != nil {
 		return nil, err
@@ -52,7 +50,7 @@ func (r *templateEntityRepository) BulkCreate(aggregateList []*aggregate.Templat
 		entityList = append(entityList, entity.NewTemplateEntity(each))
 	}
 
-	createdList, err := r.MongoBaseRepository.BulkCreate(context.TODO(), entityList)
+	createdList, err := r.baseRepo.BulkCreate(entityList)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +65,7 @@ func (r *templateEntityRepository) BulkCreate(aggregateList []*aggregate.Templat
 
 // FindById retrieves a templateEntity by its ID.
 func (r *templateEntityRepository) FindById(id string) (*aggregate.TemplateEntity, error) {
-	entityTemplateEntity, err := r.MongoBaseRepository.FindById(context.TODO(), id)
+	entityTemplateEntity, err := r.baseRepo.FindById(id)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +75,7 @@ func (r *templateEntityRepository) FindById(id string) (*aggregate.TemplateEntit
 
 // FindWithFilter retrieves templateEntitys based on filter conditions.
 func (r *templateEntityRepository) FindWithFilter(filterQuery common.FilterQuery) ([]*aggregate.TemplateEntity, error) {
-	templateEntitys, err := r.MongoBaseRepository.FindWithFilter(context.TODO(), filterQuery)
+	templateEntitys, err := r.baseRepo.FindWithFilter(filterQuery)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find templateEntitys: %w", err)
 	}
@@ -95,20 +93,8 @@ func (r *templateEntityRepository) FindWithFilter(filterQuery common.FilterQuery
 func (r *templateEntityRepository) Update(templateEntity *aggregate.TemplateEntity) (*aggregate.TemplateEntity, error) {
 	entityTemplateEntity := entity.NewTemplateEntity(templateEntity)
 
-	// Convert entityTemplateEntity struct to bson.M
-	bsonData, err := bson.Marshal(entityTemplateEntity)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal entity to bson: %w", err)
-	}
-
-	var updateData bson.M
-	err = bson.Unmarshal(bsonData, &updateData)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal bson to bson.M: %w", err)
-	}
-
 	// Pass bson.M to the base repository update method
-	updatedTemplateEntity, err := r.MongoBaseRepository.Update(context.TODO(), templateEntity.ID, updateData)
+	updatedTemplateEntity, err := r.baseRepo.Update(templateEntity.ID, entityTemplateEntity)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +113,7 @@ func (r *templateEntityRepository) Delete(id string) error {
 		return fmt.Errorf("invalid ID format: %w", err)
 	}
 
-	err = r.MongoBaseRepository.Delete(context.TODO(), id)
+	err = r.baseRepo.Delete(id)
 	if err == nil {
 		entity := entity.TemplateEntity{ID: objectID}
 		eventChannel := worker_channel.GetCRUDEventChannel()

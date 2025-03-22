@@ -9,13 +9,22 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+type SQLRepository[T any] interface {
+	Create(entity *T) (*T, error)
+	BulkCreate(entities []*T) ([]*T, error)
+	FindById(id string) (*T, error)
+	FindWithFilter(filterQuery common.FilterQuery) ([]*T, error)
+	Update(entity *T) (*T, error)
+	Delete(id string) error
+}
+
 // SqlBaseRepository defines CRUD operations for any entity type.
 type SqlBaseRepository[T any] struct {
 	db *gorm.DB
 }
 
 // NewSqlBaseRepository initializes a new SqlBaseRepository.
-func NewSqlBaseRepository[T any](db *gorm.DB) *SqlBaseRepository[T] {
+func NewSqlBaseRepository[T any](db *gorm.DB) SQLRepository[T] {
 	return &SqlBaseRepository[T]{db: db}
 }
 
@@ -46,26 +55,6 @@ func (r *SqlBaseRepository[T]) FindById(id string) (*T, error) {
 		}
 		return nil, fmt.Errorf("failed to find record by ID: %w", err)
 	}
-	return &entity, nil
-}
-
-// FindById retrieves a record by its ID.
-func (r *SqlBaseRepository[T]) FindByIdWithRelation(id string, preloadRelations []string) (*T, error) {
-	var entity T
-	query := r.db.Model(&entity)
-
-	// Loop through the preloadRelations slice and apply Preload for each relation dynamically
-	for _, relation := range preloadRelations {
-		query = query.Preload(relation)
-	}
-
-	// Now execute the First query to fetch the entity with preloaded relations
-	if err := query.First(&entity, "id = ?", id).Error; err != nil {
-		// Handle error (e.g., record not found, or other DB errors)
-		return nil, fmt.Errorf("failed to fetch entity with relations: %w", err)
-	}
-
-	// Return the entity with preloaded relations
 	return &entity, nil
 }
 

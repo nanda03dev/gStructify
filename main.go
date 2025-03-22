@@ -132,10 +132,11 @@ func copyDirAndModify(efs embed.FS, srcDir, destDir, packageName string, entity 
 						"mongo_template_entity.go":            true,
 					},
 					"mongo": {
-						"sql_template_entity_aggregate.go":  true,
-						"sql_template_entity_table.go":      true,
-						"sql_template_entity_repository.go": true,
-						"sql_template_entity.go":            true,
+						"sql_template_entity_aggregate.go":       true,
+						"sql_template_entity_table.go":           true,
+						"sql_template_entity_repository.go":      true,
+						"sql_template_entity_repository_test.go": true,
+						"sql_template_entity.go":                 true,
 					},
 				}
 

@@ -2,8 +2,6 @@ package repository
 
 import (
 	"sync"
-
-	"github.com/nanda03dev/go-ms-template/src/core/infrastructure/db"
 )
 
 type Repositories struct {

@@ -15,20 +15,20 @@ type TemplateEntityRepository interface {
 
 // templateEntityRepository implements the TemplateEntityRepository interface.
 type templateEntityRepository struct {
-	*SqlBaseRepository[entity.TemplateEntity] // Embeds SqlBaseRepository for CRUD operations
+	baseRepo SQLRepository[entity.TemplateEntity]
 }
 
 // NewTemplateEntityRepository initializes a new templateEntityRepository instance.
 func NewTemplateEntityRepository(databases *db.Databases) TemplateEntityRepository {
 	return &templateEntityRepository{
-		SqlBaseRepository: NewSqlBaseRepository[entity.TemplateEntity](databases.SqlDB.DB), // Initialize SqlBaseRepository with the entity.TemplateEntity type
+		baseRepo: NewSqlBaseRepository[entity.TemplateEntity](databases.SqlDB.DB), // Initialize SqlBaseRepository with the entity.TemplateEntity type
 	}
 }
 
 // Create inserts a new templateEntity.
 func (r *templateEntityRepository) Create(templateEntity *aggregate.TemplateEntity) (*aggregate.TemplateEntity, error) {
 	entityTemplateEntity := entity.NewTemplateEntity(templateEntity)
-	createdTemplateEntity, err := r.SqlBaseRepository.Create(entityTemplateEntity)
+	createdTemplateEntity, err := r.baseRepo.Create(entityTemplateEntity)
 
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (r *templateEntityRepository) BulkCreate(aggregateList []*aggregate.Templat
 		entityList = append(entityList, entity.NewTemplateEntity(each))
 	}
 
-	createdList, err := r.SqlBaseRepository.BulkCreate(entityList)
+	createdList, err := r.baseRepo.BulkCreate(entityList)
 
 	if err != nil {
 		return nil, err
@@ -65,14 +65,14 @@ func (r *templateEntityRepository) BulkCreate(aggregateList []*aggregate.Templat
 
 // FindById retrieves a templateEntity by its ID.
 func (r *templateEntityRepository) FindById(id string) (*aggregate.TemplateEntity, error) {
-	entityTemplateEntity, err := r.SqlBaseRepository.FindById(id)
+	entityTemplateEntity, err := r.baseRepo.FindById(id)
 	return entityTemplateEntity.ToDomain(), err
 }
 
 // FindWithFilter retrieves a templateEntity by .
 func (r *templateEntityRepository) FindWithFilter(filterQuery common.FilterQuery) ([]*aggregate.TemplateEntity, error) {
 
-	templateEntitys, err := r.SqlBaseRepository.FindWithFilter(filterQuery)
+	templateEntitys, err := r.baseRepo.FindWithFilter(filterQuery)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find templateEntitys by name: %w", err)
 	}
@@ -89,7 +89,7 @@ func (r *templateEntityRepository) FindWithFilter(filterQuery common.FilterQuery
 // Update modifies an existing templateEntity.
 func (r *templateEntityRepository) Update(templateEntity *aggregate.TemplateEntity) (*aggregate.TemplateEntity, error) {
 	entityTemplateEntity := entity.NewTemplateEntity(templateEntity)
-	updatedTemplateEntity, err := r.SqlBaseRepository.Update(entityTemplateEntity)
+	updatedTemplateEntity, err := r.baseRepo.Update(entityTemplateEntity)
 
 	if err != nil {
 		return nil, err
@@ -103,7 +103,7 @@ func (r *templateEntityRepository) Update(templateEntity *aggregate.TemplateEnti
 
 // Delete removes a templateEntity by its ID.
 func (r *templateEntityRepository) Delete(id string) error {
-	err := r.SqlBaseRepository.Delete(id)
+	err := r.baseRepo.Delete(id)
 	if err != nil {
 		entity := entity.TemplateEntity{ID: id}
 		eventChannel := worker_channel.GetCRUDEventChannel()

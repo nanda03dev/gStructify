@@ -4,28 +4,36 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
-
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"time"
 )
+
+type MongoRepository[T any] interface {
+	Create(entity *T) (*T, error)
+	BulkCreate(entities []*T) ([]*T, error)
+	FindById(id string) (*T, error)
+	FindWithFilter(filterQuery common.FilterQuery) ([]*T, error)
+	Update(id string, entity *T) (*T, error)
+	Delete(id string) error
+}
 
 type MongoBaseRepository[T any] struct {
 	collection *mongo.Collection
 }
 
 // NewMongoBaseRepository initializes a new MongoBaseRepository.
-func NewMongoBaseRepository[T any](db *mongo.Database, collectionName string) *MongoBaseRepository[T] {
+func NewMongoBaseRepository[T any](db *mongo.Database, collectionName string) MongoRepository[T] {
 	return &MongoBaseRepository[T]{
 		collection: db.Collection(collectionName),
 	}
 }
 
 // Create inserts a new document into MongoDB.
-func (r *MongoBaseRepository[T]) Create(ctx context.Context, entity *T) (*T, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+func (r *MongoBaseRepository[T]) Create(entity *T) (*T, error) {
+	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 	defer cancel()
 
 	_, err := r.collection.InsertOne(ctx, entity)
@@ -37,8 +45,8 @@ func (r *MongoBaseRepository[T]) Create(ctx context.Context, entity *T) (*T, err
 }
 
 // BulkCreate inserts multiple documents into MongoDB.
-func (r *MongoBaseRepository[T]) BulkCreate(ctx context.Context, entities []*T) ([]*T, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+func (r *MongoBaseRepository[T]) BulkCreate(entities []*T) ([]*T, error) {
+	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 	defer cancel()
 
 	var docs []interface{}
@@ -54,8 +62,8 @@ func (r *MongoBaseRepository[T]) BulkCreate(ctx context.Context, entities []*T) 
 }
 
 // FindById retrieves a document by its ID.
-func (r *MongoBaseRepository[T]) FindById(ctx context.Context, id string) (*T, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+func (r *MongoBaseRepository[T]) FindById(id string) (*T, error) {
+	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 	defer cancel()
 
 	var result T
@@ -75,8 +83,8 @@ func (r *MongoBaseRepository[T]) FindById(ctx context.Context, id string) (*T, e
 }
 
 // FindWithFilter retrieves documents based on filters, sorting, limit, and offset.
-func (r *MongoBaseRepository[T]) FindWithFilter(ctx context.Context, filterQuery common.FilterQuery) ([]*T, error) {
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+func (r *MongoBaseRepository[T]) FindWithFilter(filterQuery common.FilterQuery) ([]*T, error) {
+	ctx, cancel := context.WithTimeout(context.TODO(), 10*time.Second)
 	defer cancel()
 
 	filter := bson.M{}
@@ -135,17 +143,40 @@ func (r *MongoBaseRepository[T]) FindWithFilter(ctx context.Context, filterQuery
 }
 
 // Update modifies an existing document by its ID.
-func (r *MongoBaseRepository[T]) Update(ctx context.Context, id string, updateData bson.M) (*T, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+func (r *MongoBaseRepository[T]) Update(id string, entity *T) (*T, error) {
+	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 	defer cancel()
 
+	// Convert ID to ObjectID
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, errors.New("invalid ObjectID format")
 	}
 
+	// Convert entity to a BSON document
+	entityBson, err := bson.Marshal(entity)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal entity: %w", err)
+	}
+
+	// Convert BSON back to a map for update operation
+	var updateData bson.M
+	if err := bson.Unmarshal(entityBson, &updateData); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal entity BSON: %w", err)
+	}
+
+	// Remove `_id` field from updateData to prevent updating the document's ID
+	delete(updateData, "_id")
+
+	// Perform the update operation
 	update := bson.M{"$set": updateData}
-	result := r.collection.FindOneAndUpdate(ctx, bson.M{"_id": objectID}, update, options.FindOneAndUpdate().SetReturnDocument(options.After))
+	result := r.collection.FindOneAndUpdate(
+		ctx,
+		bson.M{"_id": objectID},
+		update,
+		options.FindOneAndUpdate().SetReturnDocument(options.After),
+	)
+
 	if result.Err() != nil {
 		return nil, fmt.Errorf("failed to update document: %w", result.Err())
 	}
@@ -159,8 +190,8 @@ func (r *MongoBaseRepository[T]) Update(ctx context.Context, id string, updateDa
 }
 
 // Delete removes a document by its ID.
-func (r *MongoBaseRepository[T]) Delete(ctx context.Context, id string) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+func (r *MongoBaseRepository[T]) Delete(id string) error {
+	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 	defer cancel()
 
 	objectID, err := primitive.ObjectIDFromHex(id)
